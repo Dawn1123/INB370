@@ -44,6 +44,22 @@ import asgn2Simulators.Constants;
  */
 public abstract class Vehicle {
 	
+	private String vehID;
+	
+	private int arrivalTime,
+				parkingTime = 0,
+				departureTime = 0,
+				totalParkingTime = 0,
+				queueExitTime = 0,
+				queuingTime = 0,
+				maximumQueueTime;
+	
+	private Boolean isParked = false,
+					isQueued = false,
+					wasParked = false,
+					wasQueued = false,
+					isSatisfied = true;
+	
 	/**
 	 * Vehicle Constructor 
 	 * @param vehID String identification number or plate of the vehicle
@@ -51,7 +67,15 @@ public abstract class Vehicle {
 	 *        either queued, given entry to the car park or forced to leave
 	 * @throws VehicleException if arrivalTime is <= 0 
 	 */
-	public Vehicle(String vehID,int arrivalTime) throws VehicleException  {
+	public Vehicle(String vehID, int arrivalTime) throws VehicleException  {
+		if (arrivalTime > 0) {		
+			this.arrivalTime = arrivalTime;
+			this.vehID = vehID;
+		} else {
+			throw new VehicleException(
+					"Vehicle arrival time cannot be less than 0"
+							+ ", value provided: " + arrivalTime);
+		}
 	}
 
 	/**
@@ -64,6 +88,22 @@ public abstract class Vehicle {
 	 *         or if intendedDuration is less than the minimum prescribed in asgnSimulators.Constants
 	 */
 	public void enterParkedState(int parkingTime, int intendedDuration) throws VehicleException {
+		if (!this.isParked() && !this.isQueued()) {
+			if (parkingTime > 0) {
+				if (intendedDuration > Constants.MINIMUM_STAY) {
+					this.parkingTime = parkingTime;
+					this.isParked = true;
+					this.wasParked = true;
+					this.departureTime = parkingTime + intendedDuration;
+				} else {
+					throw new VehicleException("Vehicles intended duration cannot be less than 20 minutes after parking time, parking time: " + parkingTime + "intended duration: " + intendedDuration);
+				}
+			} else {
+				throw new VehicleException("Vehicles parking time cannot be less than 0, value provided: " + parkingTime);
+			}
+		} else {
+			throw new VehicleException("Vehicle cannot enter parked state when already parked, or still in the queue");
+		}
 	}
 	
 	/**
@@ -72,6 +112,13 @@ public abstract class Vehicle {
 	 * @throws VehicleException if the vehicle is already in a queued or parked state
 	 */
 	public void enterQueuedState() throws VehicleException {
+		if (!this.isQueued() && !this.isParked()) {			
+			this.isQueued = true;
+			this.wasQueued = true;
+			this.maximumQueueTime = this.arrivalTime + Constants.MAXIMUM_QUEUE_TIME;
+		} else {
+			throw new VehicleException("Vehicle cannot enter a queued state when already parked, or in the queue");
+		}
 	}
 	
 	/**
@@ -81,6 +128,21 @@ public abstract class Vehicle {
 	 * 		  state or if the revised departureTime < parkingTime
 	 */
 	public void exitParkedState(int departureTime) throws VehicleException {
+		if (this.isParked()) {
+			if (!this.isQueued()) {
+				if (this.parkingTime < departureTime) {
+					this.isParked = false;
+					this.departureTime = departureTime;
+					this.totalParkingTime = departureTime - this.parkingTime;
+				} else {
+					throw new VehicleException("Vehicles departure time cannot be less than the time it parked, parking time: " + this.parkingTime + "departure time: " + departureTime);
+				}
+			} else {
+				throw new VehicleException("Vehicle cannot leave a parked state if it's in a queued state");
+			}
+		} else {
+			throw new VehicleException("Vehicle cannot leave a parked state if it is not in a parked state");
+		}		
 	}
 
 	/**
@@ -92,6 +154,25 @@ public abstract class Vehicle {
 	 *  exitTime is not later than arrivalTime for this vehicle
 	 */
 	public void exitQueuedState(int exitTime) throws VehicleException {
+		if (!this.isParked()) {
+			if (this.isQueued()) {
+				if (this.arrivalTime < exitTime) {
+					this.isQueued = false;
+					this.queueExitTime = exitTime;
+					this.queuingTime = exitTime - this.arrivalTime;
+					
+					if (exitTime >= this.maximumQueueTime) {
+						this.isSatisfied = false;
+					}
+				} else {
+					throw new VehicleException("Vehicle exit time cannot be earlier than the arrival time, exit time: " + exitTime + "arrival time: " + this.arrivalTime);
+				}
+			} else {
+				throw new VehicleException("Vehicle must be in the queue before it can leave the queue");
+			}
+		} else {
+			throw new VehicleException("Vehicle cannot be parked and leave the queue");
+		}
 	}
 	
 	/**
@@ -99,6 +180,7 @@ public abstract class Vehicle {
 	 * @return the arrivalTime
 	 */
 	public int getArrivalTime() {
+		return this.arrivalTime;
 	}
 	
 	/**
@@ -108,6 +190,7 @@ public abstract class Vehicle {
 	 * @return the departureTime
 	 */
 	public int getDepartureTime() {
+		return this.departureTime;
 	}
 	
 	/**
@@ -116,6 +199,7 @@ public abstract class Vehicle {
 	 * @return the parkingTime
 	 */
 	public int getParkingTime() {
+		return this.parkingTime;
 	}
 
 	/**
@@ -123,6 +207,7 @@ public abstract class Vehicle {
 	 * @return the vehID
 	 */
 	public String getVehID() {
+		return this.vehID;
 	}
 
 	/**
@@ -130,6 +215,7 @@ public abstract class Vehicle {
 	 * @return true if the vehicle is in a parked state; false otherwise
 	 */
 	public boolean isParked() {
+		return this.isParked;
 	}
 
 	/**
@@ -137,6 +223,7 @@ public abstract class Vehicle {
 	 * @return true if vehicle is in a queued state, false otherwise 
 	 */
 	public boolean isQueued() {
+		return this.isQueued;
 	}
 	
 	/**
@@ -146,6 +233,11 @@ public abstract class Vehicle {
 	 * @return true if satisfied, false if never in parked state or if queuing time exceeds max allowable 
 	 */
 	public boolean isSatisfied() {
+		if (!this.wasQueued() && !this.wasParked()) {
+			this.isSatisfied = false;
+		}
+		
+		return this.isSatisfied;
 	}
 	
 	/* (non-Javadoc)
@@ -153,6 +245,27 @@ public abstract class Vehicle {
 	 */
 	@Override
 	public String toString() {
+		String vehicleString = "Vehicle vehID: " + this.vehID
+								+ "\nArrivalTime: " + this.arrivalTime;
+		
+		if (!this.isSatisfied()) {
+			if (!this.wasQueued()) {
+				vehicleString += "\nVehicle was not queued";
+			} else {
+				vehicleString += "\nExit from Queue: " + this.queueExitTime
+								 + "\nQueuing Time: " + this.queuingTime;
+			}
+			vehicleString += "\nVehicle was not parked"
+							 + "\nCustomer was not satisfied";
+		} else {
+			vehicleString += "\nExit from Queue: " + this.queueExitTime
+					 	 	 + "\nQueuing Time: " + this.queuingTime
+							 + "\nEntry to Car Park: " + this.parkingTime
+							 + "\nExit from Car Park: " + this.departureTime
+							 + "\nParking Time: " + this.totalParkingTime
+							 + "\nCustomer was satisfied";
+		}	
+		return vehicleString;
 	}
 
 	/**
@@ -161,6 +274,7 @@ public abstract class Vehicle {
 	 * @return true if vehicle was or is in a parked state, false otherwise 
 	 */
 	public boolean wasParked() {
+		return this.wasParked;
 	}
 
 	/**
@@ -168,5 +282,6 @@ public abstract class Vehicle {
 	 * @return true if vehicle was or is in a queued state, false otherwise 
 	 */
 	public boolean wasQueued() {
+		return this.wasQueued;
 	}
 }
