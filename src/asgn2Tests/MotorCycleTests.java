@@ -16,12 +16,75 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import asgn2Exceptions.VehicleException;
+import asgn2Simulators.Constants;
+import asgn2Vehicles.Car;
+import asgn2Vehicles.MotorCycle;
+import asgn2Vehicles.Vehicle;
+
 /**
  * @author hogan
  *
  */
 public class MotorCycleTests {
 
+	private Vehicle testVehicle;
+	
+	private Integer vehicleCount = 1;
+	
+	private final String FIRST_MOTORCYCLE = "C" + vehicleCount.toString(),
+						 SECOND_MOTORCYCLE = "C" + vehicleCount.toString();		 
+	
+	private final int NORMAL_ARRIVAL = 1,
+					  TOO_LOW_ARRIVAL = 0,
+					  PARK_ON_ARRIVAL_TIME = NORMAL_ARRIVAL,
+					  PARK_LATER = PARK_ON_ARRIVAL_TIME + 1,
+					  PARK_BELOW_ZERO = -1,
+					  NORMAL_DURATION = NORMAL_ARRIVAL + 100,
+					  TOO_LOW_DURATION = Constants.MINIMUM_STAY - 5,
+					  DEPART_NORMAL_DURATION = NORMAL_ARRIVAL + NORMAL_DURATION,
+					  DEPART_SHORT_DURATION = NORMAL_DURATION / 2,
+					  DEPART_QUEUE = NORMAL_ARRIVAL + 25,
+					  DEPART_QUEUE_BAD_EXIT_TIME = NORMAL_ARRIVAL - 1,
+					  DEPART_LONG_QUEUE = NORMAL_ARRIVAL + 26;
+	
+	
+	/*
+	 * Before method constructing a new motorcycle
+	 * @throws asgn2Exceptions.VehicleException
+	 */
+	@Before
+	public void constructCar() throws VehicleException {
+		testVehicle = new MotorCycle(FIRST_MOTORCYCLE, NORMAL_ARRIVAL);
+		vehicleCount += 1;
+	}
+	
+	//---------------------MotorCycle constructor tests----------------------\\
+	
+	@Test(expected = VehicleException.class)
+	/*
+	 * throws exception when arrival time is lower than 0
+	 */
+	public void tooLowArrival() throws VehicleException {
+		testVehicle = new MotorCycle(SECOND_MOTORCYCLE, TOO_LOW_ARRIVAL);
+	}
+	
+	@Test
+	/*
+	 * check vehID after constructing car
+	 */
+	public void getVehIDAfterConstruct() {
+		assertEquals(testVehicle.getVehID(), FIRST_MOTORCYCLE);
+	}
+	
+	@Test
+	/*
+	 * check arrival time after constructing car
+	 */
+	public void getArrivalTimeAfterConstruct() {
+		assertEquals(testVehicle.getArrivalTime(), NORMAL_ARRIVAL);
+	}
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
