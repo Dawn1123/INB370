@@ -58,7 +58,7 @@ public abstract class Vehicle {
 					isQueued = false,
 					wasParked = false,
 					wasQueued = false,
-					isSatisfied = true;
+					isSatisfied = false;
 	
 	/**
 	 * Vehicle Constructor 
@@ -91,6 +91,7 @@ public abstract class Vehicle {
 		if (!this.isParked() && !this.isQueued()) {
 			if (parkingTime > 0) {
 				if (intendedDuration > Constants.MINIMUM_STAY) {
+					this.isSatisfied = true;
 					this.parkingTime = parkingTime;
 					this.isParked = true;
 					this.wasParked = true;
@@ -112,7 +113,8 @@ public abstract class Vehicle {
 	 * @throws VehicleException if the vehicle is already in a queued or parked state
 	 */
 	public void enterQueuedState() throws VehicleException {
-		if (!this.isQueued() && !this.isParked()) {			
+		if (!this.isQueued() && !this.isParked()) {	
+			this.isSatisfied = true;
 			this.isQueued = true;
 			this.wasQueued = true;
 			this.maximumQueueTime = this.arrivalTime + Constants.MAXIMUM_QUEUE_TIME;
@@ -233,10 +235,6 @@ public abstract class Vehicle {
 	 * @return true if satisfied, false if never in parked state or if queuing time exceeds max allowable 
 	 */
 	public boolean isSatisfied() {
-		if (!this.wasQueued() && !this.wasParked()) {
-			this.isSatisfied = false;
-		}
-		
 		return this.isSatisfied;
 	}
 	
