@@ -434,6 +434,7 @@ public class CarPark {
 		boolean createSmallCar = false;
 		boolean createMotorCycle = false;
 		String vehicleID;
+		int durationOfStay;
 		
 		//run trials to see what vehicles are created
 		createCar = sim.newCarTrial();
@@ -444,34 +445,43 @@ public class CarPark {
 		if (createCar) {
 			vehicleID = Integer.toString(vehicleCount);
 			vehicleCount++;
+			durationOfStay = sim.setDuration();
 			
 			//create a small car
+			//park vehicle if spaces available, if not archive vehicle
 			if (createSmallCar) {
 				currentVehicle = new Car(vehicleID, time, true); 
 				if (spacesAvailable(currentVehicle)) {
-					parkVehicle(currentVeh);
-					
-					//if no parks archive
-					//if parks park vehicle
-				
-				//create a normal car
+					parkVehicle(currentVehicle, time, durationOfStay);
+				} else {
+					archiveNewVehicle(currentVehicle);
+				}
+			
+			//create a normal car
+			//park vehicle if spaces available, if not archive vehicle
 			} else {
 				currentVehicle = new Car(vehicleID, time, false);
-				//check for parks
-					//if no parks archive
-					//if parks park vehicle
+				if (spacesAvailable(currentVehicle)) {
+					parkVehicle(currentVehicle, time, durationOfStay);
+				} else {
+					archiveNewVehicle(currentVehicle);
+				}
 			}
 		}
 		
 		//check for motorcycle creation
 		if (createMotorCycle) {
 			//create a motorCycle
+			//park vehicle if spaces available, if not archive vehicle
 			vehicleID = Integer.toString(vehicleCount);
 			vehicleCount++;
+			durationOfStay = sim.setDuration();
 			currentVehicle = new MotorCycle(vehicleID, time); //create a motorcycle
-			//check for parks
-				//if no parks archive
-				//if parks park vehicle
+			if (spacesAvailable(currentVehicle)) {
+				parkVehicle(currentVehicle, time, durationOfStay);
+			} else {
+				archiveNewVehicle(currentVehicle);
+			}
 		}
 		
 	}
