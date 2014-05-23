@@ -410,7 +410,6 @@ public class CarPark {
 		if (spacesCount > 0) {
 			spacesRemaining = true;
 		}
-		"string";
 		return spacesRemaining;
 	}
 
