@@ -1,0 +1,2 @@
+INDEX VERSION 1.126+C:\Users\Lucas\Documents\GitHub\INB370\.metadata\.plugins\org.eclipse.jdt.core
+186333737.index
