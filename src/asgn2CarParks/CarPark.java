@@ -448,7 +448,9 @@ public class CarPark {
 			//create a small car
 			if (createSmallCar) {
 				currentVehicle = new Car(vehicleID, time, true); 
-				//check for parks
+				if (spacesAvailable(currentVehicle)) {
+					parkVehicle(currentVeh);
+					
 					//if no parks archive
 					//if parks park vehicle
 				
