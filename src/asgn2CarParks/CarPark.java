@@ -133,7 +133,10 @@ public class CarPark {
 				for(Vehicle overDueVehicle : vehiclesToModify){
 					departureTime = overDueVehicle.getDepartureTime();
 					unparkVehicle(overDueVehicle, departureTime);
-				}	
+				}
+				
+				//empty vehiclesToModify list
+				vehiclesToModify.clear();
 			}
 	}
 		
@@ -203,6 +206,13 @@ public class CarPark {
 	 * @throws VehicleException if vehicle not in the correct state 
 	 */
 	public void enterQueue(Vehicle v) throws SimulationException, VehicleException {
+		//if queue is full throw simulationException
+		if (queueFull()) { 
+			throw new SimulationException("queue was full when enterQueue was called"); 
+		} else {
+			vehicleQueue.add(v); //add vehicle to queue
+			v.enterQueuedState();//change status to queued
+		}
 	}
 	
 	
@@ -216,6 +226,13 @@ public class CarPark {
 	 * constraints are violated
 	 */
 	public void exitQueue(Vehicle v,int exitTime) throws SimulationException, VehicleException {
+		//if queue does not contain vehicle throw exception
+		if (!vehicleQueue.contains(v)) { 
+			throw new SimulationException("queue was empty when exitQueue was called"); 
+		} else {
+			vehicleQueue.remove(v); //remove vehicle from queue
+			v.exitQueuedState(exitTime);//change status to not queued
+		}
 	}
 	
 	/**
@@ -372,7 +389,14 @@ public class CarPark {
 	 * @throws VehicleException if state is incorrect, or timing constraints are violated
 	 */
 	public void processQueue(int time, Simulator sim) throws VehicleException, SimulationException {
-	
+		//iterate through list
+			//if space for vehicle
+		
+		//If space for vehicle
+			//exit queue
+			//check time to park for
+			//park vehicle
+		
 	}
 
 	/**
