@@ -157,11 +157,13 @@ public class CarPark {
 	 * @throws SimulationException 
 	 */
 	public void archiveQueueFailures(int time) throws VehicleException, SimulationException {
+		int maxWaitTime;
 		//if queue not empty
 		if (!queueEmpty()) {
 			//for every vehicle that has stayed too long add to vehiclesToModify
 			for(Vehicle queuedVehicle : vehicleQueue){ 
-				if (!queuedVehicle.isSatisfied()) {
+				maxWaitTime = queuedVehicle.getArrivalTime() + Constants.MAXIMUM_QUEUE_TIME;
+				if (time > maxWaitTime) {
 					vehiclesToModify.add(queuedVehicle); 
 				}
 			}
