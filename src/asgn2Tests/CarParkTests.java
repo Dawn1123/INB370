@@ -565,20 +565,80 @@ public class CarParkTests {
 	////////////////////////////////////////////////////
 	
 	/**
+	 * @author Lucas
+	 * Check that exitQueue throws SimulationException if queue is empty when called
+	 */  
+	@Test  (expected = SimulationException.class)
+	public void testExitQueueSimulationexception() throws VehicleException, SimulationException {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.exitQueue(testCar, currentTime);
+		assertTrue("SimulationException not thrown when exitQueue is called, and queue is already empty",(true)); 
+	}
+	
+	/**
 	 * Check that exitQueue successfully removes one vehicle from the queue
 	 */ 
+	@Test  
+	public void testExitQueueOne() throws VehicleException, SimulationException {
+		//place 3 vehicles in queue
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		//remove one vehicle from queue
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 2);
+		assertTrue("exitQueue does not correctly remove a single vehicle from queue",(currentTestCondition)); 
+	}
 	
 	/**
 	 * Check that exitQueue successfully changes state of vehicle when removing from queue
 	 */
+	@Test  
+	public void testExitQueueOneState() throws VehicleException, SimulationException {
+		//place 3 vehicles in queue
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		//remove one vehicle from queue
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = !testCar.isQueued();
+		assertTrue("exitQueue does not correctly change state of vehicle when removed from queue",(currentTestCondition)); 
+	}
 	
 	/**
 	 * Check that exitQueue successfully removes multiple vehicles from the queue
 	 */  
+	/*
+	@Test  
+	public void testExitQueueMultiple() throws VehicleException, SimulationException {
+		//place 8 vehicles in queue
+		for (int i = 0; i < 8; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		//remove one vehicle from queue
+		
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 2);
+		assertTrue("exitQueue does not correctly remove a single vehicle from queue",(currentTestCondition)); 
+	}
+	*/
 
 	/**
 	 * Check that exitQueue successfully removes vehicle from the queue when only one present
 	 */ 
+	@Test  
+	public void testExitQueueOnePresent() throws VehicleException, SimulationException {
+		//place 1 vehicles in queue
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		//remove one vehicle from queue
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 0);
+		assertTrue("exitQueue does not correctly remove a single vehicle from queue when one present",(currentTestCondition)); 
+	}
 
 
 	////////////////////////////////////////////////////
