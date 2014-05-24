@@ -5,5 +5,7 @@
 	<classpathentry kind="lib" path="D:/Programs/mysql-connector-java-5.1.12-bin.jar"/>
 	<classpathentry kind="lib" path="D:/Programs/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="D:/Programs/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="D:/Programs/jcommon-1.0.21.jar"/>
+	<classpathentry kind="lib" path="D:/Programs/jfreechart-1.0.17.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
