@@ -147,7 +147,6 @@ public class CarPark {
 	 * @throws SimulationException if vehicle is currently queued or parked
 	 */
 	public void archiveNewVehicle(Vehicle v) throws SimulationException {
-		v.isSatisfied();//change to unsatisfied
 		vehicleArchive.add(v);//add vehicle to archive
 	}
 	
@@ -155,9 +154,28 @@ public class CarPark {
 	 * Archive vehicles which have stayed in the queue too long 
 	 * @param time int holding current simulation time 
 	 * @throws VehicleException if one or more vehicles not in the correct state or if timing constraints are violated
+	 * @throws SimulationException 
 	 */
-	public void archiveQueueFailures(int time) throws VehicleException {
-	}
+	public void archiveQueueFailures(int time) throws VehicleException, SimulationException {
+		//if queue not empty
+		if (!queueEmpty()) {
+			//for every vehicle that has stayed too long add to vehiclesToModify
+			for(Vehicle queuedVehicle : vehicleQueue){ 
+				if (!queuedVehicle.isSatisfied()) {
+					vehiclesToModify.add(queuedVehicle); 
+				}
+			}
+			
+			//for every unsatisfied vehicle, remove from queue and add to archive
+			for(Vehicle unsatisfiedVehicle : vehiclesToModify){ 
+				exitQueue(unsatisfiedVehicle, time);
+				vehicleArchive.add(unsatisfiedVehicle);
+			}
+			
+			//clearvehicleArchive
+			vehicleArchive.clear();
+		}
+	} 
 	
 	/**
 	 * @author Lucas
@@ -538,7 +556,6 @@ public class CarPark {
 			throw new SimulationException("unparkVehicle called when vehicle is not present in carpark"); 
 		} else { 
 			spaces.remove(v); //remove from spaces
-			v.isSatisfied();//change to unsatisfied
 			vehicleArchive.add(v); //add to vehicleArchive
 			v.exitParkedState(departureTime); //update status to unparked
 			UnparkedVehicleUpdateCount(v); //update parked vehicle count
