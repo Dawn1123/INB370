@@ -412,14 +412,16 @@ public class CarPark {
 	 * @throws VehicleException if state is incorrect, or timing constraints are violated
 	 */
 	public void processQueue(int time, Simulator sim) throws VehicleException, SimulationException {
-		//iterate through list
-			//if space for vehicle
+		int parkingDuration;
+		Vehicle queuedVehicle;
 		
-		//If space for vehicle
-			//exit queue
-			//check time to park for
-			//park vehicle
-		
+		//if space for first vehicle, remove from queue and add to carpark
+		while (spacesAvailable(vehicleQueue.peek())) {
+			queuedVehicle = vehicleQueue.element();				//get a copy of vehicle
+			exitQueue(queuedVehicle, time); 					//exit carpark
+			parkingDuration = sim.setDuration();				//check duration of park
+			parkVehicle(queuedVehicle, time, parkingDuration);	//park vehicle
+		}
 	}
 
 	/**
@@ -592,8 +594,11 @@ public class CarPark {
 	 * Simple status showing whether vehicle can be parked
 	 * @return true if vehicle can be parked in suitable space
 	 */
-	private boolean checkSpacesAvailable() {
-	return true;
+	private boolean checkSpacesAvailable(Vehicle vehicleToCheck) {
+		if (vehicleToCheck instanceof Car)
+		
+		
+		return true;
 	}
 	
 	/**
