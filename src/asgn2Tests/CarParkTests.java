@@ -1147,7 +1147,7 @@ public class CarParkTests {
 			testCarPark.enterQueue(testMotorCycle);
 		}
 		testCarPark.processQueue(currentTime, testSimulator);
-		currentTestCondition = ((testCarPark.getNumCars() == 3) && (testCarPark.queueEmpty()));
+		currentTestCondition = ((testCarPark.getNumCars() == 6) && (testCarPark.queueEmpty()));
 		currentTestCondition &= ((testCarPark.getNumSmallCars() == 3) && (testCarPark.getNumMotorCycles() == 3));
 		
 		assertTrue("processQueue fails to correctly add multiple vehicles to carpark "
@@ -1164,7 +1164,7 @@ public class CarParkTests {
 		//add 100 cars to carpark
 		for (int i = 0; i < 100; i++) {
 			testCar = new Car(testVehicleID, 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 10);;
+			testCarPark.parkVehicle(testCar, currentTime,100);;
 		}
 		//add car to queue
 		testCar = new Car(testVehicleID, 10, normalCarCondition); 
