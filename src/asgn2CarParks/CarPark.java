@@ -51,6 +51,11 @@ public class CarPark {
     private int totalSpaces;
     private int queueSpacesMax;
     private int vehicleCount = 1;
+    private int numCars = 0;
+    private int numSmallCars = 0;
+    private int numMotorCycles = 0;
+    private int numDissatisfied = 0;
+    private String status;
     private Vehicle currentVehicle;
     private ArrayList<Vehicle> spaces; 
     private ArrayList<Vehicle> vehicleArchive;
@@ -262,9 +267,9 @@ public class CarPark {
 	 */
 	public String finalState() {
 		String str = "Vehicles Processed: count:" + 
-				this.count + ", logged: " + this.past.size() 
+				this.vehicleCount + ", logged: " + this.vehicleArchive.size() 
 				+ "\nVehicle Record: \n";
-		for (Vehicle v : this.past) {
+		for (Vehicle v : this.vehicleArchive) {
 			str += v.toString() + "\n\n";
 		}
 		return str + "\n";
@@ -331,14 +336,14 @@ public class CarPark {
 	 */
 	public String getStatus(int time) {
 		String str = time +"::"
-		+ this.count + "::" 
+		+ this.vehicleCount + "::" 
 		+ "P:" + this.spaces.size() + "::"
 		+ "C:" + this.numCars + "::S:" + this.numSmallCars 
 		+ "::M:" + this.numMotorCycles 
 		+ "::D:" + this.numDissatisfied 
-		+ "::A:" + this.past.size()  
-		+ "::Q:" + this.queue.size(); 
-		for (Vehicle v : this.queue) {
+		+ "::A:" + this.vehicleArchive.size()  
+		+ "::Q:" + this.vehicleQueue.size(); 
+		for (Vehicle v : this.vehicleQueue) {
 			if (v instanceof Car) {
 				if (((Car)v).isSmall()) {
 					str += "S";
@@ -477,6 +482,9 @@ public class CarPark {
 	 */
 	@Override
 	public String toString() {
+		return "CarPark [count: " + vehicleCount + " numCars: " + numCars + " numSmallCars: " + numSmallCars + " numMotorCycles: " +
+				numMotorCycles + " queue: " + (vehicleQueue.size()) + " numDissatisfied: " + numDissatisfied + " past: " + 
+				vehicleArchive.size() + "]";
 	}
 
 	/**
@@ -524,6 +532,11 @@ public class CarPark {
 					archiveNewVehicle(currentVehicle);
 				}
 			}
+			
+			//update vehicle counts
+			numCars = getNumCars();
+			numSmallCars = getNumSmallCars();
+			numMotorCycles = getNumMotorCycles();
 		}
 		
 		//check for motorcycle creation
@@ -588,17 +601,6 @@ public class CarPark {
 			str += "M";
 		}
 		return "|"+str+":"+source+">"+target+"|";
-	}
-	
-	/**
-	 * Simple status showing whether vehicle can be parked
-	 * @return true if vehicle can be parked in suitable space
-	 */
-	private boolean checkSpacesAvailable(Vehicle vehicleToCheck) {
-		if (vehicleToCheck instanceof Car)
-		
-		
-		return true;
 	}
 	
 	/**
