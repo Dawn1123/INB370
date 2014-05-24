@@ -133,7 +133,10 @@ public class CarPark {
 				for(Vehicle overDueVehicle : vehiclesToModify){
 					departureTime = overDueVehicle.getDepartureTime();
 					unparkVehicle(overDueVehicle, departureTime);
-				}	
+				}
+				
+				//empty vehiclesToModify list
+				vehiclesToModify.clear();
 			}
 	}
 		
@@ -144,7 +147,6 @@ public class CarPark {
 	 * @throws SimulationException if vehicle is currently queued or parked
 	 */
 	public void archiveNewVehicle(Vehicle v) throws SimulationException {
-		v.isSatisfied();//change to unsatisfied
 		vehicleArchive.add(v);//add vehicle to archive
 	}
 	
@@ -152,9 +154,28 @@ public class CarPark {
 	 * Archive vehicles which have stayed in the queue too long 
 	 * @param time int holding current simulation time 
 	 * @throws VehicleException if one or more vehicles not in the correct state or if timing constraints are violated
+	 * @throws SimulationException 
 	 */
-	public void archiveQueueFailures(int time) throws VehicleException {
-	}
+	public void archiveQueueFailures(int time) throws VehicleException, SimulationException {
+		//if queue not empty
+		if (!queueEmpty()) {
+			//for every vehicle that has stayed too long add to vehiclesToModify
+			for(Vehicle queuedVehicle : vehicleQueue){ 
+				if (!queuedVehicle.isSatisfied()) {
+					vehiclesToModify.add(queuedVehicle); 
+				}
+			}
+			
+			//for every unsatisfied vehicle, remove from queue and add to archive
+			for(Vehicle unsatisfiedVehicle : vehiclesToModify){ 
+				exitQueue(unsatisfiedVehicle, time);
+				vehicleArchive.add(unsatisfiedVehicle);
+			}
+			
+			//clearvehicleArchive
+			vehicleArchive.clear();
+		}
+	} 
 	
 	/**
 	 * @author Lucas
@@ -203,6 +224,13 @@ public class CarPark {
 	 * @throws VehicleException if vehicle not in the correct state 
 	 */
 	public void enterQueue(Vehicle v) throws SimulationException, VehicleException {
+		//if queue is full throw simulationException
+		if (queueFull()) { 
+			throw new SimulationException("queue was full when enterQueue was called"); 
+		} else {
+			vehicleQueue.add(v); //add vehicle to queue
+			v.enterQueuedState();//change status to queued
+		}
 	}
 	
 	
@@ -216,6 +244,13 @@ public class CarPark {
 	 * constraints are violated
 	 */
 	public void exitQueue(Vehicle v,int exitTime) throws SimulationException, VehicleException {
+		//if queue does not contain vehicle throw exception
+		if (!vehicleQueue.contains(v)) { 
+			throw new SimulationException("queue was empty when exitQueue was called"); 
+		} else {
+			vehicleQueue.remove(v); //remove vehicle from queue
+			v.exitQueuedState(exitTime);//change status to not queued
+		}
 	}
 	
 	/**
@@ -335,7 +370,10 @@ public class CarPark {
 	 * @return number of vehicles in the queue
 	 */
 	public int numVehiclesInQueue() {
-	
+		int queueCount;
+		
+		queueCount = vehicleQueue.size();
+		return queueCount;
 	}
 	
 	/**
@@ -372,7 +410,14 @@ public class CarPark {
 	 * @throws VehicleException if state is incorrect, or timing constraints are violated
 	 */
 	public void processQueue(int time, Simulator sim) throws VehicleException, SimulationException {
-	
+		//iterate through list
+			//if space for vehicle
+		
+		//If space for vehicle
+			//exit queue
+			//check time to park for
+			//park vehicle
+		
 	}
 
 	/**
@@ -380,6 +425,10 @@ public class CarPark {
 	 * @return true if queue empty, false otherwise
 	 */
 	public boolean queueEmpty() {
+		boolean queueIsEmpty; 
+		
+		queueIsEmpty = vehicleQueue.isEmpty();
+		return queueIsEmpty;
 	}
 
 	/**
@@ -387,6 +436,10 @@ public class CarPark {
 	 * @return true if queue full, false otherwise
 	 */
 	public boolean queueFull() {
+		boolean queueIsFull;
+		
+		queueIsFull = (vehicleQueue.remainingCapacity() == 0);
+		return queueIsFull;
 	}
 	
 	/**
@@ -434,6 +487,7 @@ public class CarPark {
 		boolean createSmallCar = false;
 		boolean createMotorCycle = false;
 		String vehicleID;
+		int durationOfStay;
 		
 		//run trials to see what vehicles are created
 		createCar = sim.newCarTrial();
@@ -444,32 +498,43 @@ public class CarPark {
 		if (createCar) {
 			vehicleID = Integer.toString(vehicleCount);
 			vehicleCount++;
+			durationOfStay = sim.setDuration();
 			
 			//create a small car
+			//park vehicle if spaces available, if not archive vehicle
 			if (createSmallCar) {
 				currentVehicle = new Car(vehicleID, time, true); 
-				//check for parks
-					//if no parks archive
-					//if parks park vehicle
-				
-				//create a normal car
+				if (spacesAvailable(currentVehicle)) {
+					parkVehicle(currentVehicle, time, durationOfStay);
+				} else {
+					archiveNewVehicle(currentVehicle);
+				}
+			
+			//create a normal car
+			//park vehicle if spaces available, if not archive vehicle
 			} else {
 				currentVehicle = new Car(vehicleID, time, false);
-				//check for parks
-					//if no parks archive
-					//if parks park vehicle
+				if (spacesAvailable(currentVehicle)) {
+					parkVehicle(currentVehicle, time, durationOfStay);
+				} else {
+					archiveNewVehicle(currentVehicle);
+				}
 			}
 		}
 		
 		//check for motorcycle creation
 		if (createMotorCycle) {
 			//create a motorCycle
+			//park vehicle if spaces available, if not archive vehicle
 			vehicleID = Integer.toString(vehicleCount);
 			vehicleCount++;
+			durationOfStay = sim.setDuration();
 			currentVehicle = new MotorCycle(vehicleID, time); //create a motorcycle
-			//check for parks
-				//if no parks archive
-				//if parks park vehicle
+			if (spacesAvailable(currentVehicle)) {
+				parkVehicle(currentVehicle, time, durationOfStay);
+			} else {
+				archiveNewVehicle(currentVehicle);
+			}
 		}
 		
 	}
@@ -491,7 +556,6 @@ public class CarPark {
 			throw new SimulationException("unparkVehicle called when vehicle is not present in carpark"); 
 		} else { 
 			spaces.remove(v); //remove from spaces
-			v.isSatisfied();//change to unsatisfied
 			vehicleArchive.add(v); //add to vehicleArchive
 			v.exitParkedState(departureTime); //update status to unparked
 			UnparkedVehicleUpdateCount(v); //update parked vehicle count

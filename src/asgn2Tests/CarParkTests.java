@@ -19,6 +19,7 @@ import org.junit.Test;
 import asgn2CarParks.CarPark;
 import asgn2Exceptions.SimulationException;
 import asgn2Exceptions.VehicleException;
+import asgn2Simulators.Simulator;
 import asgn2Vehicles.Car;
 import asgn2Vehicles.MotorCycle;
 import asgn2Vehicles.Vehicle;
@@ -38,6 +39,7 @@ public class CarParkTests {
 	private CarPark testCarPark;
 	private Car testCar;
 	private MotorCycle testMotorCycle;
+	private Simulator testSimulator;
 	int currentTime = 100;
 	boolean currentTestCondition;
 	
@@ -302,45 +304,95 @@ public class CarParkTests {
 	////////////////////////////////////////////////////
 	
 	/**
-	 * Check that vehicle is archived when greater than time
+	 * Check that vehicle is removed from queue
 	 */
+	@Test 
+	public void testArchiveQueueFailuresOverTime() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is over time
+		testCarPark.archiveQueueFailures(2000); 
+		currentTestCondition = (testCarPark.queueEmpty()); 
+		assertTrue("Vehicle is not removed from queue when over time",(currentTestCondition));
+	}
 	
 	/**
 	 * Check that vehicle changes state when greater than time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresOverTimeState() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is over time
+		testCarPark.archiveQueueFailures(2000); 
+		currentTestCondition = (!testCar.isQueued()); 
+		assertTrue("Vehicle does not change state when over time and removed from queue",(currentTestCondition));
+	}
 	
 	/**
 	 * Check that vehicle doesn't change state when less than time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresUnderTimeState() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is under time
+		testCarPark.archiveQueueFailures(currentTime+1); 
+		currentTestCondition = (testCar.isQueued()); 
+		assertTrue("Vehicle incorrectly changes state when under time",(currentTestCondition));
+	}
 	
 	/**
-	 * Check that vehicle isn't archived when less than time
+	 * Check that vehicle isn't removed from queue when less than time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresUnderTime() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is under time
+		testCarPark.archiveQueueFailures(2000); 
+		currentTestCondition = (!testCarPark.queueEmpty()); 
+		assertTrue("Vehicle is incorrectly removed from queue when under time",(currentTestCondition));
+	}
 	
 	/**
 	 * Check that vehicle changes state when equal to time
 	 */
 	
 	/**
-	 * Check that vehicle is archived when equal to time
+	 * Check that vehicle is removed from queue when equal to time
 	 */
 	
 	/**
-	 * Check that no vehicles archived when multiple less than time
+	 * Check that no vehicles removed from queue when multiple less than time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresMultipleUnderTime() throws VehicleException, SimulationException {
+		for (int i = 0; i < 5; i++) {
+			testCar = new Car(testVehicleID, currentTime, false); 
+			testCarPark.enterQueue(testCar);
+		}
+		//call archiveDepartingVehicles when multiple vehicles are under time
+		testCarPark.archiveQueueFailures(currentTime+1); 
+		currentTestCondition = (!testCarPark.queueEmpty()); 
+		assertTrue("Vehicles are incorrectly removed from queue when multiple under time",(currentTestCondition));
+	}
 	
 	/**
-	 * Check that no vehicles change state when multiple less than time
+	 * Check that multiple vehicles removed from queue when multiple greater than time
 	 */
-	
-	/**
-	 * Check that multiple vehicles archived when multiple greater than time
-	 */
-	
-	/**
-	 * Check that multiple vehicles change state when multiple greater than time
-	 */
-	
+	@Test 
+	public void testArchiveQueueFailuresMultipleOverTime() throws VehicleException, SimulationException {
+		for (int i = 0; i < 5; i++) {
+			testCar = new Car(testVehicleID, currentTime, false); 
+			testCarPark.enterQueue(testCar);
+		}
+		//call archiveDepartingVehicles when multiple vehicles are over time
+		testCarPark.archiveQueueFailures(2000); 
+		currentTestCondition = (testCarPark.queueEmpty()); 
+		assertTrue("Vehicles aren't removed from queue when multiple over time",(currentTestCondition));
+	}
+
 	
 	////////////////////////////////////////////////////
 	//			carParkEmpty
@@ -510,28 +562,54 @@ public class CarParkTests {
 	////////////////////////////////////////////////////
 	
 	/**
-	 * Check that enterQueue throws SimulationException if queue is full
+	 * @author Lucas
+	 * Check that enterQueue throws SimulationException if queue is full when called
 	 */  
+	@Test  (expected = SimulationException.class)
+	public void testEnterQueueFull() throws VehicleException, SimulationException {
+		//try to place 11 vehicles in queue
+		for (int i = 0; i < 11; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		assertTrue("SimulationException not thrown when enterQueue is called, and queue is already full",(true)); 
+	}
 	
 	/**
+	 * @author Lucas
 	 * Check that enterQueue successfully adds one vehicle to the queue
 	 */  
+	@Test 
+	public void testEnterQueueOne() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, 10, normalCarCondition);
+		testCarPark.enterQueue(testCar);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 1);
+		assertTrue("enterQueue does not successfully add a single vehicle to queue",(currentTestCondition)); 
+	}
 	
 	/**
 	 * Check that enterQueue successfully changes state of vehicle when adding to queue
 	 */  
+	@Test  
+	public void testEnterQueueOneState() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, 10, normalCarCondition);
+		testCarPark.enterQueue(testCar);
+		currentTestCondition = (testCar.isQueued());
+		assertTrue("enterQueue does not successfully change state of vehicle when added to queue",(currentTestCondition)); 
+	}
 	
 	/**
 	 * Check that enterQueue successfully adds multiple vehicles to the queue
 	 */  
-	
-	/**
-	 * Check that enterQueue successfully changes state of vehicle when adding multiple to queue
-	 */  
-	
-	/**
-	 * Check that enterQueue successfully adds a vehicle to the queue when one space left
-	 */ 
+	@Test  
+	public void testEnterQueueMultiple() throws VehicleException, SimulationException {
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 3);
+		assertTrue("enterQueue does not correctly add multiple vehicles to queue",(currentTestCondition)); 
+	}
 	
 	
 	////////////////////////////////////////////////////
@@ -539,24 +617,80 @@ public class CarParkTests {
 	////////////////////////////////////////////////////
 	
 	/**
+	 * @author Lucas
+	 * Check that exitQueue throws SimulationException if queue is empty when called
+	 */  
+	@Test  (expected = SimulationException.class)
+	public void testExitQueueSimulationexception() throws VehicleException, SimulationException {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.exitQueue(testCar, currentTime);
+		assertTrue("SimulationException not thrown when exitQueue is called, and queue is already empty",(true)); 
+	}
+	
+	/**
 	 * Check that exitQueue successfully removes one vehicle from the queue
 	 */ 
+	@Test  
+	public void testExitQueueOne() throws VehicleException, SimulationException {
+		//place 3 vehicles in queue
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		//remove one vehicle from queue
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 2);
+		assertTrue("exitQueue does not correctly remove a single vehicle from queue",(currentTestCondition)); 
+	}
 	
 	/**
 	 * Check that exitQueue successfully changes state of vehicle when removing from queue
 	 */
+	@Test  
+	public void testExitQueueOneState() throws VehicleException, SimulationException {
+		//place 3 vehicles in queue
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		//remove one vehicle from queue
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = !testCar.isQueued();
+		assertTrue("exitQueue does not correctly change state of vehicle when removed from queue",(currentTestCondition)); 
+	}
 	
 	/**
 	 * Check that exitQueue successfully removes multiple vehicles from the queue
 	 */  
-	
-	/**
-	 * Check that exitQueue successfully changes state of multiple vehicles when removing from queue
-	 */ 
-	
+	/*
+	@Test  
+	public void testExitQueueMultiple() throws VehicleException, SimulationException {
+		//place 8 vehicles in queue
+		for (int i = 0; i < 8; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		//remove one vehicle from queue
+		
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 2);
+		assertTrue("exitQueue does not correctly remove a single vehicle from queue",(currentTestCondition)); 
+	}
+	*/
+
 	/**
 	 * Check that exitQueue successfully removes vehicle from the queue when only one present
 	 */ 
+	@Test  
+	public void testExitQueueOnePresent() throws VehicleException, SimulationException {
+		//place 1 vehicles in queue
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		//remove one vehicle from queue
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 0);
+		assertTrue("exitQueue does not correctly remove a single vehicle from queue when one present",(currentTestCondition)); 
+	}
 
 
 	////////////////////////////////////////////////////
@@ -804,28 +938,52 @@ public class CarParkTests {
 	////////////////////////////////////////////////////	
 
 	/**
+	 * @author Lucas
 	 * Check that numVehiclesInQueue returns correct value when empty
 	 */ 
+	@Test  
+	public void testNumVehiclesInQueueEmpty() throws VehicleException, SimulationException {
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 0);
+		assertTrue("numVehiclesInQueue does not return currect value when empty",(currentTestCondition)); 
+	}
 	
 	/**
-	 * Check that numVehiclesInQueue returns correct value when one car
+	 * @author Lucas
+	 * Check that numVehiclesInQueue returns correct value when one vehicle present
 	 */ 
+	@Test  
+	public void testNumVehiclesInQueueOne() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, 10, normalCarCondition);
+		testCarPark.enterQueue(testCar);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 1);
+		assertTrue("numVehiclesInQueue does not return currect value when one vehicle present",(currentTestCondition)); 
+	}
 	
 	/**
-	 * Check that numVehiclesInQueue returns correct value when one small car
+	 * Check that numVehiclesInQueue returns correct value when multiple vehicles present
 	 */ 
-	
-	/**
-	 * Check that numVehiclesInQueue returns correct value when one motorcycle
-	 */ 
-	
-	/**
-	 * Check that numVehiclesInQueue returns correct value when multiple vehicles
-	 */ 
+	@Test  
+	public void testNumVehiclesInQueueMultiple() throws VehicleException, SimulationException {
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 3);
+		assertTrue("numVehiclesInQueue does not return currect value when multiple vehicles present",(currentTestCondition)); 
+	}
 	
 	/**
 	 * Check that numVehiclesInQueue returns correct value when full
 	 */ 
+	@Test  
+	public void testNumVehiclesInQueueFull() throws VehicleException, SimulationException {
+		for (int i = 0; i < 10; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 10);
+		assertTrue("numVehiclesInQueue does not return currect value when queue full",(currentTestCondition)); 
+	}
 	
 
 	////////////////////////////////////////////////////
@@ -915,14 +1073,100 @@ public class CarParkTests {
 	////////////////////////////////////////////////////
 	//			processQueue
 	////////////////////////////////////////////////////
-	
+
 	/**
 	 * Check that processQueue runs when queue is empty, making no changes to parking spaces
 	 */  
+	@Test 
+	public void testProcessQueueEmpty() throws VehicleException, SimulationException {
+		testSimulator = new Simulator();
+		//add 20 cars to carpark
+		for (int i = 0; i < 20; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, 100); 
+		}
+		testCarPark.processQueue(currentTime, testSimulator);
+		currentTestCondition = ((testCarPark.getNumCars() == 20) && (testCarPark.queueEmpty()));
+		assertTrue("processQueue fails to run correctly when queue is empty, altering"
+				+ " contents of carpark",currentTestCondition);
+	}
 	
 	/**
-	 * Check that processQueue throws SimulationException when no suitable places exist when parking attempted
+	 * @author Lucas
+	 * Check that processQueue adds vehicle to carpark when a suitable space is available 
+	 */  
+	@Test 
+	public void testProcessQueueOne() throws VehicleException, SimulationException {
+		testSimulator = new Simulator();
+		testCar = new Car(testVehicleID, 10, normalCarCondition); 
+		testCarPark.enterQueue(testCar);
+		testCarPark.processQueue(currentTime, testSimulator);
+		currentTestCondition = ((testCarPark.getNumCars() == 1) && (testCarPark.queueEmpty()));
+		assertTrue("processQueue fails to run correctly add vehicle to carpark and remove from queue "
+				+ "when relevant spaces available",currentTestCondition);
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that processQueue adds multiple vehicles to carpark when suitable spaces are available 
+	 */  
+	@Test 
+	public void testProcessQueueMultiple() throws VehicleException, SimulationException {
+		testSimulator = new Simulator();
+		//add 3 cars to queue
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition); 
+			testCarPark.enterQueue(testCar);
+		}
+		//add 3 small cars to queue
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, smallCarCondition); 
+			testCarPark.enterQueue(testCar);
+		}
+		//add 3 motorCycles to queue
+		for (int i = 0; i < 3; i++) {
+			testMotorCycle = new MotorCycle(testVehicleID, 10); 
+			testCarPark.enterQueue(testMotorCycle);
+		}
+		testCarPark.processQueue(currentTime, testSimulator);
+		currentTestCondition = ((testCarPark.getNumCars() == 3) && (testCarPark.queueEmpty()));
+		currentTestCondition &= ((testCarPark.getNumSmallCars() == 3) && (testCarPark.getNumMotorCycles() == 3));
+		
+		assertTrue("processQueue fails to correctly add multiple vehicles to carpark "
+				+ "when relevant spaces available",currentTestCondition);
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that processQueue blocks when no spaces are available for the first element in queue
 	 */ 
+	@Test 
+	public void testProcessQueueBlocksMultiple() throws VehicleException, SimulationException {
+		testSimulator = new Simulator();
+		//add 100 cars to carpark
+		for (int i = 0; i < 100; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, 10);;
+		}
+		//add car to queue
+		testCar = new Car(testVehicleID, 10, normalCarCondition); 
+		testCarPark.enterQueue(testCar);
+		//add 3 small cars to queue
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, 10, smallCarCondition); 
+			testCarPark.enterQueue(testCar);
+		}
+		//add 3 motorCycles to queue
+		for (int i = 0; i < 3; i++) {
+			testMotorCycle = new MotorCycle(testVehicleID, 10); 
+			testCarPark.enterQueue(testMotorCycle);
+		}
+		testCarPark.processQueue(currentTime, testSimulator);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 7);
+		
+		assertTrue("processQueue fails to block when first element in queue "
+				+ "unable to park",currentTestCondition);
+	}
 	
 
 	////////////////////////////////////////////////////
@@ -930,33 +1174,82 @@ public class CarParkTests {
 	////////////////////////////////////////////////////
 
 	/**
-	 * Check that queueEmpty returns true when no cars in queue
+	 * @author Lucas
+	 * Check that queueEmpty returns true when no vehicles in queue
 	 */
+	@Test  
+	public void testQueueEmptyNoVehicles() throws VehicleException, SimulationException {
+		currentTestCondition = testCarPark.queueEmpty();
+		assertTrue("queueEmpty does not return true when queue is empty",(currentTestCondition)); 
+	}
 	
 	/**
-	 * Check that queueEmpty returns false when one car in queue
+	 * @author Lucas
+	 * Check that queueEmpty returns false when one vehicle in queue
 	 */
+	@Test  
+	public void testQueueEmptyOne() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, 10, normalCarCondition);
+		testCarPark.enterQueue(testCar);
+		currentTestCondition = !testCarPark.queueEmpty();
+		assertTrue("queueEmpty does not return false when one vehicle in queue",(currentTestCondition)); 
+	}
 	
 	/**
-	 * Check that queueEmpty returns false when multiple cars in queue
+	 * @author Lucas
+	 * Check that queueEmpty returns false when queue is full
 	 */
-	
+	@Test  
+	public void testQueueEmptyCapacity() throws VehicleException, SimulationException {
+		for (int i = 0; i < 10; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		currentTestCondition = !testCarPark.queueEmpty();
+		assertTrue("queueEmpty does not return false when queue is full",(currentTestCondition)); 
+	}
 	
 	////////////////////////////////////////////////////
 	//			queueFull
 	////////////////////////////////////////////////////
 
 	/**
+	 * @author Lucas
 	 * Check that queueFull returns true when queue is at capacity
 	 */
+	@Test  
+	public void testQueueFullCapacity() throws VehicleException, SimulationException {
+		for (int i = 0; i < 10; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		currentTestCondition = testCarPark.queueFull();
+		assertTrue("queueFull does not return true when at capacity",(currentTestCondition)); 
+	}
 
 	/**
+	 * @author Lucas
 	 * Check that queueFull returns false queue is one below capacity
 	 */
+	@Test  
+	public void testQueueFullOneBelow() throws VehicleException, SimulationException {
+		for (int i = 0; i < 9; i++) {
+			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		currentTestCondition = !testCarPark.queueFull();
+		assertTrue("queueFull does not return false when one below capacity",(currentTestCondition)); 
+	}
 
 	/**
-	 * Check that queueFull returns false when no cars in queue
+	 * @author Lucas
+	 * Check that queueFull returns false when no vehicles in queue
 	 */
+	@Test  
+	public void testQueueFullNoVehicles() throws VehicleException, SimulationException {
+		currentTestCondition = !testCarPark.queueFull();
+		assertTrue("queueFull does not return false when queue is empty",(currentTestCondition)); 
+	}
 	
 	
 	////////////////////////////////////////////////////
