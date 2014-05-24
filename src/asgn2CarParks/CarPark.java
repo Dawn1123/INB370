@@ -352,7 +352,10 @@ public class CarPark {
 	 * @return number of vehicles in the queue
 	 */
 	public int numVehiclesInQueue() {
-	
+		int queueCount;
+		
+		queueCount = vehicleQueue.size();
+		return queueCount;
 	}
 	
 	/**
@@ -404,6 +407,10 @@ public class CarPark {
 	 * @return true if queue empty, false otherwise
 	 */
 	public boolean queueEmpty() {
+		boolean queueIsEmpty; 
+		
+		queueIsEmpty = vehicleQueue.isEmpty();
+		return queueIsEmpty;
 	}
 
 	/**
@@ -411,6 +418,10 @@ public class CarPark {
 	 * @return true if queue full, false otherwise
 	 */
 	public boolean queueFull() {
+		boolean queueIsFull;
+		
+		queueIsFull = (vehicleQueue.remainingCapacity() == 0);
+		return queueIsFull;
 	}
 	
 	/**
