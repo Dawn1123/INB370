@@ -325,17 +325,35 @@ public class CarParkTests {
 		testCarPark.enterQueue(testCar);
 		//call archiveDepartingVehicles when single vehicle is over time
 		testCarPark.archiveQueueFailures(2000); 
-		currentTestCondition = (testCar.isQueued()); 
+		currentTestCondition = (!testCar.isQueued()); 
 		assertTrue("Vehicle does not change state when over time and removed from queue",(currentTestCondition));
 	}
 	
 	/**
 	 * Check that vehicle doesn't change state when less than time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresUnderTimeState() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is under time
+		testCarPark.archiveQueueFailures(currentTime+1); 
+		currentTestCondition = (testCar.isQueued()); 
+		assertTrue("Vehicle incorrectly changes state when under time",(currentTestCondition));
+	}
 	
 	/**
 	 * Check that vehicle isn't removed from queue when less than time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresUnderTime() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is under time
+		testCarPark.archiveQueueFailures(2000); 
+		currentTestCondition = (!testCarPark.queueEmpty()); 
+		assertTrue("Vehicle is incorrectly removed from queue when under time",(currentTestCondition));
+	}
 	
 	/**
 	 * Check that vehicle changes state when equal to time
@@ -348,12 +366,33 @@ public class CarParkTests {
 	/**
 	 * Check that no vehicles removed from queue when multiple less than time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresMultipleUnderTime() throws VehicleException, SimulationException {
+		for (int i = 0; i < 5; i++) {
+			testCar = new Car(testVehicleID, currentTime, false); 
+			testCarPark.enterQueue(testCar);
+		}
+		//call archiveDepartingVehicles when multiple vehicles are under time
+		testCarPark.archiveQueueFailures(currentTime+1); 
+		currentTestCondition = (!testCarPark.queueEmpty()); 
+		assertTrue("Vehicles are incorrectly removed from queue when multiple under time",(currentTestCondition));
+	}
 	
 	/**
 	 * Check that multiple vehicles removed from queue when multiple greater than time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresMultipleOverTime() throws VehicleException, SimulationException {
+		for (int i = 0; i < 5; i++) {
+			testCar = new Car(testVehicleID, currentTime, false); 
+			testCarPark.enterQueue(testCar);
+		}
+		//call archiveDepartingVehicles when multiple vehicles are over time
+		testCarPark.archiveQueueFailures(2000); 
+		currentTestCondition = (testCarPark.queueEmpty()); 
+		assertTrue("Vehicles aren't removed from queue when multiple over time",(currentTestCondition));
+	}
 
-	
 	
 	////////////////////////////////////////////////////
 	//			carParkEmpty
