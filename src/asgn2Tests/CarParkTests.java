@@ -19,6 +19,7 @@ import org.junit.Test;
 import asgn2CarParks.CarPark;
 import asgn2Exceptions.SimulationException;
 import asgn2Exceptions.VehicleException;
+import asgn2Simulators.Constants;
 import asgn2Simulators.Simulator;
 import asgn2Vehicles.Car;
 import asgn2Vehicles.MotorCycle;
@@ -33,6 +34,7 @@ public class CarParkTests {
 	private static boolean smallCarCondition = true;
 	private static boolean normalCarCondition = false;
 	private static String testVehicleID = "1";
+	private static int overTimeValue = 300;
 
 	
 	/* Declare an object for use in each test */
@@ -311,7 +313,7 @@ public class CarParkTests {
 		testCar = new Car(testVehicleID, currentTime, false); 
 		testCarPark.enterQueue(testCar);
 		//call archiveDepartingVehicles when single vehicle is over time
-		testCarPark.archiveQueueFailures(2000); 
+		testCarPark.archiveQueueFailures(overTimeValue); 
 		currentTestCondition = (testCarPark.queueEmpty()); 
 		assertTrue("Vehicle is not removed from queue when over time",(currentTestCondition));
 	}
@@ -324,7 +326,7 @@ public class CarParkTests {
 		testCar = new Car(testVehicleID, currentTime, false); 
 		testCarPark.enterQueue(testCar);
 		//call archiveDepartingVehicles when single vehicle is over time
-		testCarPark.archiveQueueFailures(2000); 
+		testCarPark.archiveQueueFailures(overTimeValue); 
 		currentTestCondition = (!testCar.isQueued()); 
 		assertTrue("Vehicle does not change state when over time and removed from queue",(currentTestCondition));
 	}
@@ -350,18 +352,36 @@ public class CarParkTests {
 		testCar = new Car(testVehicleID, currentTime, false); 
 		testCarPark.enterQueue(testCar);
 		//call archiveDepartingVehicles when single vehicle is under time
-		testCarPark.archiveQueueFailures(2000); 
+		testCarPark.archiveQueueFailures(currentTime+1); 
 		currentTestCondition = (!testCarPark.queueEmpty()); 
 		assertTrue("Vehicle is incorrectly removed from queue when under time",(currentTestCondition));
 	}
 	
 	/**
-	 * Check that vehicle changes state when equal to time
+	 * Check that vehicle doesn't change state when equal to time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresEqualTimeState() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is equal to time
+		testCarPark.archiveQueueFailures(currentTime+Constants.MAXIMUM_QUEUE_TIME); 
+		currentTestCondition = (testCar.isQueued()); 
+		assertTrue("Vehicle incorrectly changes state when equal to time",(currentTestCondition));
+	}
 	
 	/**
-	 * Check that vehicle is removed from queue when equal to time
+	 * Check that vehicle isn't removed from queue when equal to time
 	 */
+	@Test 
+	public void testArchiveQueueFailuresEqualTime() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is under time
+		testCarPark.archiveQueueFailures(currentTime+Constants.MAXIMUM_QUEUE_TIME); 
+		currentTestCondition = (!testCarPark.queueEmpty()); 
+		assertTrue("Vehicle is incorrectly removed from queue when equal to time",(currentTestCondition));
+	}
 	
 	/**
 	 * Check that no vehicles removed from queue when multiple less than time
@@ -388,7 +408,7 @@ public class CarParkTests {
 			testCarPark.enterQueue(testCar);
 		}
 		//call archiveDepartingVehicles when multiple vehicles are over time
-		testCarPark.archiveQueueFailures(2000); 
+		testCarPark.archiveQueueFailures(overTimeValue); 
 		currentTestCondition = (testCarPark.queueEmpty()); 
 		assertTrue("Vehicles aren't removed from queue when multiple over time",(currentTestCondition));
 	}
@@ -488,7 +508,6 @@ public class CarParkTests {
 		}
 		
 		currentTestCondition = !testCarPark.carParkFull();
-		
 		assertTrue("carParkFull fails to return false, when carSpaces one below capacty" ,currentTestCondition);
 	}
 	
@@ -515,7 +534,6 @@ public class CarParkTests {
 		}
 		
 		currentTestCondition = !testCarPark.carParkFull();
-		
 		assertTrue("carParkFull fails to return false, when smallCarSpaces one below capacty" ,currentTestCondition);
 	}
 	
