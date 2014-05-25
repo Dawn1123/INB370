@@ -465,12 +465,12 @@ public class CarParkTests {
 	@Test 
 	public void testCarParkFullAtCapacity() throws VehicleException, SimulationException {
 		//park 100 cars in the carpark
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 70; i++) {
 			testCar = new Car("1", 10, normalCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
-		//park 20 small cars in the carpark
-		for (int i = 0; i < 20; i++) {
+		//park 30 small cars in the carpark
+		for (int i = 0; i < 30; i++) {
 			testCar = new Car("1", 10, smallCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
@@ -492,12 +492,12 @@ public class CarParkTests {
 	@Test 
 	public void testCarParkCarOneBelow() throws VehicleException, SimulationException {
 		//park 99 cars in the carpark
-		for (int i = 0; i < 99; i++) {
+		for (int i = 0; i < 69; i++) {
 			testCar = new Car("1", 10, normalCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
 		//park 20 small cars in the carpark
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 30; i++) {
 			testCar = new Car("1", 10, smallCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
@@ -517,13 +517,8 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testCarParkSmallCarOneBelow() throws VehicleException, SimulationException {
-		//park 100 cars in the carpark
-		for (int i = 0; i < 100; i++) {
-			testCar = new Car("1", 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
-		}
 		//park 19 small cars in the carpark
-		for (int i = 0; i < 19; i++) {
+		for (int i = 0; i < 99; i++) {
 			testCar = new Car("1", 10, smallCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
@@ -545,11 +540,6 @@ public class CarParkTests {
 	public void testCarParkMotorcycleOneBelow() throws VehicleException, SimulationException {
 		//park 100 cars in the carpark
 		for (int i = 0; i < 100; i++) {
-			testCar = new Car("1", 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
-		}
-		//park 20 small cars in the carpark
-		for (int i = 0; i < 20; i++) {
 			testCar = new Car("1", 10, smallCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
@@ -772,16 +762,16 @@ public class CarParkTests {
 	@Test
 	public void testGetNumCarsFull() throws VehicleException, SimulationException {
 		//park 100 cars in the carpark
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 70; i++) {
 			testCar = new Car("1", 10, normalCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
 		//park 20 small cars in the carpark
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 30; i++) {
 			testCar = new Car("1", 10, smallCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
-		currentTestCondition = (testCarPark.getNumCars() == 120); //check if 120 cars in carpark
+		currentTestCondition = (testCarPark.getNumCars() == 100); //check if 120 cars in carpark
 		assertTrue("getNumCars returns incorrect value when carpark full",(currentTestCondition));
 	}
 	
@@ -941,12 +931,12 @@ public class CarParkTests {
 	 */ 
 	@Test
 	public void testGetNumSmallCarsFull() throws VehicleException, SimulationException {
-		//park 21 small cars in the carpark
-		for (int i = 0; i < 120; i++) {
+		//park 100 small cars in the carpark
+		for (int i = 0; i < 100; i++) {
 			testCar = new Car("1", 10, smallCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
-		currentTestCondition = (testCarPark.getNumSmallCars() == 120); //check if 120 small cars in carpark
+		currentTestCondition = (testCarPark.getNumSmallCars() == 100); //check if 100 small cars in carpark
 		assertTrue("getNumSmallCars returns incorrect value when carpark full of small cars",(currentTestCondition));
 	}
 
@@ -1161,8 +1151,8 @@ public class CarParkTests {
 	@Test 
 	public void testProcessQueueBlocksMultiple() throws VehicleException, SimulationException {
 		testSimulator = new Simulator();
-		//add 100 cars to carpark
-		for (int i = 0; i < 100; i++) {
+		//add 70 cars to carpark
+		for (int i = 0; i < 70; i++) {
 			testCar = new Car(testVehicleID, 10, normalCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime,100);;
 		}
@@ -1293,7 +1283,7 @@ public class CarParkTests {
 	@Test 
 	public void testSpacesAvailableCarOneBelow() throws VehicleException, SimulationException {
 		//park 99 cars
-		for (int i = 0; i < 99; i++) {
+		for (int i = 0; i < 69; i++) {
 			testCar = new Car("1", 10, normalCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
@@ -1308,8 +1298,8 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testSpacesAvailableCarFull() throws VehicleException, SimulationException {
-		//park 100 cars
-		for (int i = 0; i < 100; i++) {
+		//park 70 cars
+		for (int i = 0; i < 70; i++) {
 			testCar = new Car("1", 10, normalCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
@@ -1338,7 +1328,7 @@ public class CarParkTests {
 	@Test 
 	public void testSpacesAvailableSmallCarOneBelow() throws VehicleException, SimulationException {
 		//park 119 small cars
-		for (int i = 0; i < 119; i++) {
+		for (int i = 0; i < 99; i++) {
 			testCar = new Car("1", 10, smallCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
@@ -1354,8 +1344,8 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testSpacesAvailableSmallCarFull() throws VehicleException, SimulationException {
-		//park 120 small cars
-		for (int i = 0; i < 120; i++) {
+		//park 100 small cars
+		for (int i = 0; i < 100; i++) {
 			testCar = new Car("1", 10, smallCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
 		}
@@ -1400,8 +1390,8 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testSpacesAvailableMotorCycleFull() throws VehicleException, SimulationException {
-		//park 40 motorCycles
-		for (int i = 0; i < 40; i++) {
+		//park 50 motorCycles
+		for (int i = 0; i < 50; i++) {
 			testMotorCycle = new MotorCycle("1", 10); 
 			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
 		}
