@@ -1530,7 +1530,7 @@ public class CarParkTests {
 	//just a test method i have created to see where it is throwing the exception
 	@Test 
 	public void testRunCode() throws VehicleException, SimulationException {
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 135; i++) {
 			time++;
 			//queue elements exceed max waiting time
 			if (!testCarPark.queueEmpty()) {
