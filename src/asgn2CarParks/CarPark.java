@@ -50,7 +50,7 @@ public class CarPark {
     private int motorCycleSpacesEmpty;
     private int totalSpaces;
     private int queueSpacesMax;
-    private int vehicleCount = 1;
+    private int vehicleCount = 0;
     private int numCars = 0;
     private int numSmallCars = 0;
     private int numMotorCycles = 0;
@@ -121,6 +121,8 @@ public class CarPark {
 	public void archiveDepartingVehicles(int time,boolean force) throws VehicleException, SimulationException {
 			int departureTime;
 			int currentTime = time;
+			//empty vehiclesToModify list
+			vehiclesToModify.clear();
 			
 			//if carpark is empty throw simulationException
 			if (spaces.isEmpty()) { 
@@ -145,7 +147,7 @@ public class CarPark {
 				for(Vehicle overDueVehicle : vehiclesToModify){
 					departureTime = overDueVehicle.getDepartureTime();
 					unparkVehicle(overDueVehicle, departureTime);
-					status = setVehicleMsg(currentVehicle, park, archive);
+					status += setVehicleMsg(overDueVehicle, park, archive);
 				}
 				
 				//empty vehiclesToModify list
@@ -171,6 +173,8 @@ public class CarPark {
 	 */
 	public void archiveQueueFailures(int time) throws VehicleException, SimulationException {
 		int maxWaitTime;
+		//empty vehiclesToModify list
+		vehiclesToModify.clear();
 		//if queue not empty
 		if (!queueEmpty()) {
 			//for every vehicle that has stayed too long add to vehiclesToModify
@@ -185,7 +189,7 @@ public class CarPark {
 			for(Vehicle unsatisfiedVehicle : vehiclesToModify){ 
 				exitQueue(unsatisfiedVehicle, time);
 				vehicleArchive.add(unsatisfiedVehicle);
-				status = setVehicleMsg(currentVehicle, queue, archive);
+				status += setVehicleMsg(unsatisfiedVehicle, queue, archive);
 			}
 			
 			//clearvehicleArchive
@@ -348,6 +352,7 @@ public class CarPark {
 		numCars = getNumCars();
 		numSmallCars = getNumSmallCars();
 		numMotorCycles = getNumMotorCycles();
+		//status = " "; 
 		
 		String str = time +"::"
 		+ this.vehicleCount + "::" 
@@ -438,7 +443,7 @@ public class CarPark {
 			exitQueue(queuedVehicle, time); 					//exit carpark
 			parkingDuration = sim.setDuration();				//check duration of park
 			parkVehicle(queuedVehicle, time, parkingDuration);	//park vehicle
-			status = setVehicleMsg(currentVehicle, queue, park);
+			status += setVehicleMsg(currentVehicle, queue, park);
 		}
 		
 	}
@@ -532,13 +537,13 @@ public class CarPark {
 				currentVehicle = new Car(vehicleID, time, true); 
 				if (spacesAvailable(currentVehicle)) {
 					parkVehicle(currentVehicle, time, durationOfStay);
-					status = setVehicleMsg(currentVehicle, neww, park);
+					status += setVehicleMsg(currentVehicle, neww, park);
 				} else if (queueFull()) {
 					archiveNewVehicle(currentVehicle);
-					status = setVehicleMsg(currentVehicle, neww, archive);
+					status += setVehicleMsg(currentVehicle, neww, archive);
 				} else {
 					enterQueue(currentVehicle);
-					status = setVehicleMsg(currentVehicle, neww, queue);
+					status += setVehicleMsg(currentVehicle, neww, queue);
 				}
 			
 			//create a normal car
@@ -547,13 +552,13 @@ public class CarPark {
 				currentVehicle = new Car(vehicleID, time, false);
 				if (spacesAvailable(currentVehicle)) {
 					parkVehicle(currentVehicle, time, durationOfStay);
-					status = setVehicleMsg(currentVehicle, neww, park);
+					status += setVehicleMsg(currentVehicle, neww, park);
 				} else if (queueFull()) {
 					archiveNewVehicle(currentVehicle);
-					status = setVehicleMsg(currentVehicle, neww, archive);
+					status += setVehicleMsg(currentVehicle, neww, archive);
 				} else {
 					enterQueue(currentVehicle);
-					status = setVehicleMsg(currentVehicle, neww, queue);
+					status += setVehicleMsg(currentVehicle, neww, queue);
 				}
 			}
 		}
@@ -574,7 +579,7 @@ public class CarPark {
 				status += setVehicleMsg(currentVehicle, neww, archive);
 			} else {
 				enterQueue(currentVehicle);
-				status = setVehicleMsg(currentVehicle, neww, queue);
+				status += setVehicleMsg(currentVehicle, neww, queue);
 			}
 		}
 		
