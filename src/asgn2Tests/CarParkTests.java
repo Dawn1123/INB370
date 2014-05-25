@@ -44,6 +44,8 @@ public class CarParkTests {
 	private Simulator testSimulator;
 	int currentTime = 100;
 	boolean currentTestCondition;
+	private int testValue;
+	private int time = 1;
 	
 	
 	/**
@@ -52,6 +54,7 @@ public class CarParkTests {
 	@Before
 	public void setUp() throws Exception {
 		testCarPark = new CarPark();
+		testSimulator = new Simulator();
 		currentTestCondition = false;
 	}
 
@@ -1282,7 +1285,7 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testSpacesAvailableCarOneBelow() throws VehicleException, SimulationException {
-		//park 99 cars
+		//park 69 cars
 		for (int i = 0; i < 69; i++) {
 			testCar = new Car("1", 10, normalCarCondition); 
 			testCarPark.parkVehicle(testCar, currentTime, 100); 
@@ -1407,8 +1410,26 @@ public class CarParkTests {
 	////////////////////////////////////////////////////
 
 	/**
-	 * Check that tryProcessNewVehicles throws SimulationException when no suitable places are available when operation attempted
-	 */ 
+	 * @author Lucas
+	 * Check that tryProcessNewVehicle adds car to queue when car spaces empty and it is called
+	 */
+	@Test 
+	public void testTryProcessNewVehicleCarFull() throws VehicleException, SimulationException {
+		//park 100 small cars
+		for (int i = 0; i < 100; i++) {
+			testCar = new Car(testVehicleID, 10, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, 100); 
+		}
+		
+		testCarPark.tryProcessNewVehicles(currentTime, testSimulator);
+		testValue = testCarPark.numVehiclesInQueue();
+		currentTestCondition = (testValue == 1);
+		assertTrue("tryProcessNewVehicle fails to add car to queue when car spaces are full"
+				+ ", vehicles in queue =" + testValue,(currentTestCondition));
+	}
+	
+	
+	
 	
 	//need to complete
 	
@@ -1456,8 +1477,79 @@ public class CarParkTests {
 	}
 	
 	
+	////////////////////////////////////////////////////
+	//			miscelaneousTests
+	////////////////////////////////////////////////////
 	
+	/**
+	 * @author Lucas
+	 * Check that if vehicle is added to queue by tryProcessNewVehicle and one is removed from carpark, 
+	 * then process queue is run that the vehicle is then added to carpark
+	 */
+	@Test 
+	public void testMovedToParkAfterQueue() throws VehicleException, SimulationException {
+		//park 100 small cars
+		for (int i = 0; i < 100; i++) {
+			testCar = new Car(testVehicleID, 10, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, 100); 
+		}
+		
+		testCarPark.tryProcessNewVehicles(currentTime, testSimulator);
+		testCarPark.archiveDepartingVehicles(5000, false);
+		testCarPark.processQueue(currentTime + 1, testSimulator);
+		testValue = testCarPark.getNumSmallCars();
+		currentTestCondition = ((testValue == 1) && (testCarPark.numVehiclesInQueue() == 0));
+		assertTrue("after added to queue vehicle is not correctly added to carpark when spaces are available"
+				+ ", vehicles in carpark =" + testValue,(currentTestCondition));
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that if vehicle is added to queue by tryProcessNewVehicle and one is removed from carpark, 
+	 * then process queue is run that the vehicle is then added to carpark
+	 */
+	@Test 
+	public void testMovedToArchiveAfterPark() throws VehicleException, SimulationException {
+		//park 100 small cars
+		for (int i = 0; i < 100; i++) {
+			testCar = new Car(testVehicleID, 10, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, 100); 
+		}
+		
+		testCarPark.tryProcessNewVehicles(currentTime, testSimulator);
+		testCarPark.archiveDepartingVehicles(5000, false);
+		testCarPark.processQueue(currentTime + 1, testSimulator);
+		testCarPark.archiveDepartingVehicles(5000, false);
+		testValue = testCarPark.getNumSmallCars();
+		currentTestCondition = (testValue == 0);
+		assertTrue("after added to carpark vehicle is not correctly added to archive when spaces are available"
+				+ ", vehicles in carpark =" + testValue,(currentTestCondition));
+	}
+	
+	
+	//just a test method i have created to see where it is throwing the exception
+	@Test 
+	public void testRunCode() throws VehicleException, SimulationException {
+		for (int i = 0; i < 100; i++) {
+			time++;
+			//queue elements exceed max waiting time
+			if (!testCarPark.queueEmpty()) {
+				testCarPark.archiveQueueFailures(time);
+			}
+			//vehicles whose time has expired
+			if (!testCarPark.carParkEmpty()) {
+				//force exit at closing time, otherwise normal
+				boolean force = (time == Constants.CLOSING_TIME);
+				testCarPark.archiveDepartingVehicles(time, force);
+			}
+			//attempt to clear the queue 
+			if (!testCarPark.carParkFull()) {
+				testCarPark.processQueue(time, testSimulator);
+			}
 
+			testCarPark.tryProcessNewVehicles(time, testSimulator);
+		}
 
+	}
 
 }
