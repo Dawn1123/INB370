@@ -74,7 +74,7 @@ public abstract class Vehicle {
 		} else {
 			throw new VehicleException(
 					"Vehicle arrival time cannot be less than 0"
-							+ ", value provide: " + arrivalTime);
+							+ ", value provided: " + arrivalTime);
 		}
 	}
 
