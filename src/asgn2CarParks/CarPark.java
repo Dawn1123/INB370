@@ -461,7 +461,7 @@ public class CarPark {
 	public boolean queueFull() {
 		boolean queueIsFull;
 		
-		queueIsFull = (vehicleQueue.remainingCapacity() == 0);
+		queueIsFull = ((queueSpacesMax - numVehiclesInQueue()) == 0);
 		return queueIsFull;
 	}
 	
