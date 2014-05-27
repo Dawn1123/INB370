@@ -14,11 +14,14 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.swing.*;
 
 import asgn2CarParks.CarPark;
 import asgn2Exceptions.SimulationException;
+import asgn2Exceptions.VehicleException;
 
 /**
  * @author hogan
@@ -28,12 +31,11 @@ import asgn2Exceptions.SimulationException;
 public class GUISimulator extends JFrame implements Runnable {
 
 	private final Integer WIDTH = 800,
-						  HEIGHT = 600;
+						  HEIGHT = 700;
 	
-	private CarPark cp;
-	private Simulator s;
-	private Log l;
-	private SimulationRunner sr;
+	private CarPark carPark;
+	private Simulator sim;
+	private Log log;
 	
 	private int maxCarSpaces,
 				smallCarSpaces,
@@ -47,18 +49,20 @@ public class GUISimulator extends JFrame implements Runnable {
 				   intendedStayMean,
 				   intendedStaySD;
 	
-	JButton startButton;
+	private JTextArea logOutputTextArea;
 	
-	JTextField fieldMaxCarSpaces,
-     		   fieldSmallCarSpaces,
-     		   fieldMotoSpaces,
-     		   fieldMaxQueueSize,
-     		   fieldSimSeed,
-     		   fieldCarProb,
-     		   fieldSmallCarProb,
-     		   fieldMotoProb,
-     		   fieldIntendedStayMean,
-     		   fieldIntendedStaySD; 
+	private JButton startButton;
+	
+	private JTextField fieldMaxCarSpaces,
+     		   		   fieldSmallCarSpaces,
+     		   		   fieldMotoSpaces,
+     		   		   fieldMaxQueueSize,
+     		   		   fieldSimSeed,
+     		   		   fieldCarProb,
+     		   		   fieldSmallCarProb,
+     		   		   fieldMotoProb,
+     		   		   fieldIntendedStayMean,
+     		   		   fieldIntendedStaySD; 
 	/**
 	 * @param arg0
 	 * @throws HeadlessException
@@ -101,45 +105,164 @@ public class GUISimulator extends JFrame implements Runnable {
 
 	}
 	
-	private void runSimulation() {
-		maxCarSpaces = Integer.parseInt(fieldMaxCarSpaces.getText());
-		smallCarSpaces = Integer.parseInt(fieldSmallCarSpaces.getText());
-		motorCycleSpaces = Integer.parseInt(fieldMotoSpaces.getText());
-		maxQueueSize = Integer.parseInt(fieldMaxQueueSize.getText());
-		simSeed = Integer.parseInt(fieldSimSeed.getText());
+	private void runSimulation() throws IOException, VehicleException, SimulationException {
+		String logOutput = "";
 		
-		carProb = Double.parseDouble(fieldCarProb.getText());
-		smallCarProb = Double.parseDouble(fieldSmallCarProb.getText());
-		motoProb = Double.parseDouble(fieldMotoProb.getText());
-		intendedStayMean = Double.parseDouble(fieldIntendedStayMean.getText());
-		intendedStaySD = Double.parseDouble(fieldIntendedStaySD.getText());		
-		
-		cp = new CarPark(maxCarSpaces, smallCarSpaces, motorCycleSpaces, maxQueueSize);
-		s = null;
-		l = null; 
-		try {
-			s = new Simulator(simSeed, intendedStayMean, intendedStaySD, carProb, smallCarProb, motoProb);
-			l = new Log();
-		} catch (IOException | SimulationException e1) {
-			e1.printStackTrace();
-			System.exit(-1);
-		}		
-	
-		//Run the simulation 
-		sr = new SimulationRunner(cp,s,l);
-		try {
-			sr.runSimulation();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(-1);
+		if (checkGUIInputParams()) {
+			carPark = new CarPark(maxCarSpaces, smallCarSpaces, motorCycleSpaces, maxQueueSize);
+			sim = null;
+			log = null; 
+			try {
+				sim = new Simulator(simSeed, intendedStayMean, intendedStaySD, carProb, smallCarProb, motoProb);
+				log = new Log();
+			} catch (IOException | SimulationException e1) {
+				e1.printStackTrace();
+				System.exit(-1);
+			}
+			
+			this.log.initialEntry(this.carPark,this.sim);
+			appendLogOutput(initialEntry());					
+			for (int time=0; time<=Constants.CLOSING_TIME; time++) {
+				//queue elements exceed max waiting time
+				if (!this.carPark.queueEmpty()) {
+					this.carPark.archiveQueueFailures(time);
+				}
+				//vehicles whose time has expired
+				if (!this.carPark.carParkEmpty()) {
+					//force exit at closing time, otherwise normal
+					boolean force = (time == Constants.CLOSING_TIME);
+					this.carPark.archiveDepartingVehicles(time, force);
+				}
+				//attempt to clear the queue 
+				if (!this.carPark.carParkFull()) {
+					this.carPark.processQueue(time,this.sim);
+				}
+				// new vehicles from minute 1 until the last hour
+				if (newVehiclesAllowed(time)) { 
+					this.carPark.tryProcessNewVehicles(time,this.sim);
+				}
+				//Log progress
+				logOutput = carPark.getStatus(time);
+				appendLogOutput(logOutput);
+				log.writer.write(logOutput);
+			}
+			this.log.finalise(this.carPark);
+			appendLogOutput(finalEntry());
 		}
+	}
+	
+	private boolean checkGUIInputParams() {
+		boolean parsed = true;
+		String logOutput = "";
+		
+		try {
+			maxCarSpaces = Integer.parseInt(fieldMaxCarSpaces.getText());
+			smallCarSpaces = Integer.parseInt(fieldSmallCarSpaces.getText());
+			motorCycleSpaces = Integer.parseInt(fieldMotoSpaces.getText());
+			maxQueueSize = Integer.parseInt(fieldMaxQueueSize.getText());
+			simSeed = Integer.parseInt(fieldSimSeed.getText());
+		
+			carProb = Double.parseDouble(fieldCarProb.getText());
+			smallCarProb = Double.parseDouble(fieldSmallCarProb.getText());
+			motoProb = Double.parseDouble(fieldMotoProb.getText());
+			intendedStayMean = Double.parseDouble(fieldIntendedStayMean.getText());
+			intendedStaySD = Double.parseDouble(fieldIntendedStaySD.getText());
+		} catch (NumberFormatException e) {
+			parsed = false;
+			logOutput = "Incorrect Inputs, values must be numbers" +
+						"\nCar, small Car, MotorCycle spaces, Queue Size, and Simulation Seed must be Integers" +
+						"\nCar, Small Car, MotorCycle probabilities, Intended Stay Mean, and Intended Stay SD must be a Double value";
+			appendLogOutput(logOutput);
+		}
+		
+		if (maxCarSpaces < 0 || smallCarSpaces < 0 || motorCycleSpaces < 0 || maxQueueSize < 0 || simSeed < 0 ||
+				carProb < 0 || smallCarProb < 0 || motoProb < 0 || intendedStayMean < 0 || intendedStaySD < 0) {
+			parsed = false;
+			logOutput = "Incorrect Inputs, values cannot be negative. Please resolve and try again";
+			appendLogOutput(logOutput);
+		}
+		
+		return parsed;
+	}
+	
+	private static void checkCommandLineParams(String[] args) {
+		if ((args.length > 0 && args.length < 10) || args.length > 10) {
+			System.err.println("Program terminated: if providing command line arguments there needs to be 10, you provided: " + args.length);
+			System.exit(1);
+			
+		} else if (args.length == 10) {
+			for (int i = 0; i < 5; i++) {
+				try {
+					Integer.parseInt(args[i]);
+				} catch (NumberFormatException e) {
+					System.err.println("Program terminated, First 5 command line arguments must be of type Integer, value that threw this exception: " + args[i]);
+					System.exit(1);
+				}
+			}
+			
+			for (int i = 5; i < 10; i++) {
+				try {
+					Double.parseDouble(args[i]);
+				} catch (NumberFormatException e) {
+					System.err.println("Program terminated, last 5 command line arguments must be of type Double, value that threw this exception: " + args[i]);
+					System.exit(1);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Final state
+	 * @return final entry of the simulation  
+	 */
+	private String finalEntry() {
+		String logOutput = "\n" + dateOutput() + ": End of Simulation\n" + carPark.finalState();
+
+		return logOutput;
+	}
+	
+	/**
+	 * Initial state of the simulation and carpark 
+	 * @return string output of initial state
+	 */
+	private String initialEntry() {
+		String logOutput = dateOutput() + ": Start of Simulation\n" +
+								sim.toString() + "\n" +
+								carPark.initialState() + "\n\n";
+		return logOutput;
+	}
+	
+	private String dateOutput() {
+		String dateOutput = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+		
+		return dateOutput;
+	}
+	
+	private void appendLogOutput(String output) {
+		logOutputTextArea.append(output);
+		logOutputTextArea.setCaretPosition(logOutputTextArea.getDocument().getLength());
+	}
+	
+	/**
+	 * Helper method to determine if new vehicles are permitted
+	 * @param time int holding current simulation time
+	 * @return true if new vehicles permitted, false if not allowed due to simulation constraints. 
+	 */
+	private boolean newVehiclesAllowed(int time) {
+		boolean allowed = (time >=1);
+		return allowed && (time <= (Constants.CLOSING_TIME - 60));
 	}
 	
 	private void createAndShowGUI() {
 		startButton = new JButton("Start Simulation");
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				runSimulation();
+				try {
+					runSimulation();
+				} catch (IOException | SimulationException | VehicleException e) {
+					e.printStackTrace();
+					System.exit(-1);
+				}
 			}
 		});
         
@@ -177,7 +300,11 @@ public class GUISimulator extends JFrame implements Runnable {
 		JTabbedPane tabbedData = new JTabbedPane();
 		
         JPanel logOutput = new JPanel();
-        logOutput.add(new JLabel("Tab 1"));
+		logOutputTextArea = new JTextArea(20, 65);
+		JScrollPane logOutputScroll = new JScrollPane(logOutputTextArea);
+		logOutputScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
+        logOutput.add(logOutputScroll);
         JPanel plotSeries = new JPanel();
         plotSeries.add(new JButton("Tab 2"));
         JPanel summary = new JPanel();
@@ -280,35 +407,9 @@ public class GUISimulator extends JFrame implements Runnable {
         
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		setLocation(new Point(125, 50));
+		setLocation(new Point(125, 20));
 		pack();
 		setVisible(true);
-	}
-	
-	private static void checkCommandLineParams(String[] args) {
-		if ((args.length > 0 && args.length < 10) || args.length > 10) {
-			System.err.println("Program terminated: if providing command line arguments there needs to be 10, you provided: " + args.length);
-			System.exit(1);
-			
-		} else if (args.length == 10) {
-			for (int i = 0; i < 5; i++) {
-				try {
-					Integer.parseInt(args[i]);
-				} catch (NumberFormatException e) {
-					System.err.println("Program terminated, First 5 command line arguments must be of type Integer, value that threw this exception: " + args[i]);
-					System.exit(1);
-				}
-			}
-			
-			for (int i = 5; i < 10; i++) {
-				try {
-					Double.parseDouble(args[i]);
-				} catch (NumberFormatException e) {
-					System.err.println("Program terminated, last 5 command line arguments must be of type Double, value that threw this exception: " + args[i]);
-					System.exit(1);
-				}
-			}
-		}
 	}
 	
 	/**
