@@ -1,1 +1,1 @@
-java -cp ".;bin1" asgn2Simulators.GUISimulator
+java -cp ".;bin" asgn2Simulators.GUISimulator
