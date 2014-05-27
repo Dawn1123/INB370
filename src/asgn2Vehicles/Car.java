@@ -33,7 +33,9 @@ public class Car extends Vehicle {
 	 * @throws VehicleException if arrivalTime is <= 0  
 	 */
 	public Car(String vehID, int arrivalTime, boolean small) throws VehicleException {
+		//construct car as per parent class
 		super(vehID, arrivalTime);
+		//extra boolean to store if car is big or small
 		this.small = small;
 	}
 
@@ -50,11 +52,14 @@ public class Car extends Vehicle {
 	 * @see asgn2Vehicles.Vehicle#toString()
 	 */
 	@Override
-	public String toString() {		
+	public String toString() {
+		//determine if car is small or big
 		if (this.small) {
+			//if small append small message to end of parent toString method
 			return super.toString() + "\nCar can use small parking space";
 		}
 		
+		//append big message to end of parent toString if not small
 		return super.toString() + "\nCar cannot use small parking space";
 	}
 }

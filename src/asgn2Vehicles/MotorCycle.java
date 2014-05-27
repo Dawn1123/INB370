@@ -28,7 +28,8 @@ public class MotorCycle extends Vehicle {
 	 *        either queued or given entry to the carpark 
 	 * @throws VehicleException if arrivalTime is <= 0  
 	 */
-	public MotorCycle(String vehID, int arrivalTime) throws VehicleException {		
+	public MotorCycle(String vehID, int arrivalTime) throws VehicleException {
+		//construct motor cycle as per parent class
 		super(vehID, arrivalTime);
 	}
 }
