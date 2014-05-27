@@ -235,6 +235,7 @@ public abstract class Vehicle {
 		if (exitTime > this.maximumQueueTime) {
 			//change customers state to dissatisfied
 			this.isSatisfied = false;
+			this.departureTime = exitTime;
 		}
 		
 		//transition vehicle out of queue and store object variables
