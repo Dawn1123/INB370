@@ -1,0 +1,26 @@
+Lucas Walters - n8292141
+Josh Johnston - n8855315
+
+Statement of contribution
+CarPark class - Lucas 
+CarParkTests class - Lucas
+Vehicle class - Josh
+Car class - Josh
+Motorcycle class - Josh
+CarTests class - Josh
+MotorCycleTests - Josh
+GUISimulator - Josh
+
+I agree with the statement of contribution - Lucas
+I agree with the statement of contribution - Josh
+
+
+Known Bugs
+-
+
+Incomplete features
+- The graphing for the GUI is incomplete and only displays the log
+
+
+The main method of the GUI class is located in the GUISimulator class file inside the asgn2Simulators package. There is a run.bat file provided which needs Java and JRE 1.7 installed to run unless a path is declared in the file.
+
