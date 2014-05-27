@@ -231,7 +231,6 @@ public abstract class Vehicle {
 							+ exitTime + "arrival time: " + this.arrivalTime);
 		}
 		
-		//if exitTime is greater than max queue time
 		if (exitTime > this.maximumQueueTime) {
 			//change customers state to dissatisfied
 			this.isSatisfied = false;
@@ -340,12 +339,8 @@ public abstract class Vehicle {
 			} else {//vehicle dissatisfied from leaving queue after max queue time
 				vehicleString += "\nExit from Queue: " + this.queueExitTime
 								+ "\nQueuing Time: " + this.queuingTime
-								+ "\nExceeded maximum acceptable queuing time by: ";
-				if (this.arrivalTime < 25) {
-					vehicleString += (this.queueExitTime - Constants.MAXIMUM_QUEUE_TIME);
-				} else {
-					vehicleString += (this.queueExitTime - this.arrivalTime);
-				}
+								+ "\nExceeded maximum acceptable queuing time by: " +
+								((this.queueExitTime - Constants.MAXIMUM_QUEUE_TIME) - this.arrivalTime);
 			}
 			//vehicle dissatisfied so was not parked
 			vehicleString += "\nVehicle was not parked"

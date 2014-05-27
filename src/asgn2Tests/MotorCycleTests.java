@@ -404,7 +404,7 @@ public class MotorCycleTests {
 										"\nArrivalTime: " + NORMAL_ARRIVAL +
 										"\nExit from Queue: " + DEPART_LONG_QUEUE +
 										"\nQueuing Time: " + (DEPART_LONG_QUEUE - NORMAL_ARRIVAL) +
-										"\nExceeded maximum acceptable queuing time by: " + (DEPART_LONG_QUEUE - Constants.MAXIMUM_QUEUE_TIME) +
+										"\nExceeded maximum acceptable queuing time by: 1" +
 										"\nVehicle was not parked" +
 										"\nCustomer was not satisfied";
 		
