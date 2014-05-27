@@ -30,23 +30,26 @@ import asgn2Vehicles.Vehicle;
  *
  */
 public class CarParkTests {
-
+	//static variables used to make program more readable
 	private static boolean smallCarCondition = true;
 	private static boolean normalCarCondition = false;
 	private static String testVehicleID = "1";
 	private static int overTimeValue = 300;
-
+	private static int startTime = 10;
+	private static int standardParkingDuration = 100;
+	private static int currentTime = 100;
 	
-	/* Declare an object for use in each test */
-	private CarPark testCarPark;
-	private Car testCar;
-	private MotorCycle testMotorCycle;
-	private Simulator testSimulator;
-	int currentTime = 100;
+	//variables used for calculation/indication of test cases
 	boolean currentTestCondition;
 	private int testValue;
 	private int time = 1;
 	
+	//objects used in testing
+	private CarPark testCarPark;
+	private Car testCar;
+	private Car testSmallCar;
+	private MotorCycle testMotorCycle;
+	private Simulator testSimulator;
 	
 	/**
 	 * @throws java.lang.Exception
@@ -64,7 +67,6 @@ public class CarParkTests {
 	@After
 	public void tearDown() throws Exception {
 	}
-
 	
 	////////////////////////////////////////////////////
 	//			archiveDepartingVehicles
@@ -92,7 +94,7 @@ public class CarParkTests {
 	@Test  (expected = VehicleException.class)
 	public void testArchiveDepartingIncorrectState() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100);
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration);
 		testCar.enterQueuedState();
 		testCarPark.archiveDepartingVehicles(0, false);	
 		assertTrue("VehicleException not thrown when ArchiveDepartingVehicles"
@@ -106,7 +108,7 @@ public class CarParkTests {
 	@Test 
 	public void testArchiveVehicleOverTime() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100); 
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		//call archiveDepartingVehicles when single vehicle is over time
 		testCarPark.archiveDepartingVehicles(201, false); 
 		currentTestCondition = (testCarPark.carParkEmpty()); 
@@ -120,7 +122,7 @@ public class CarParkTests {
 	@Test 
 	public void testArchiveVehicleOverTimeState() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100); 
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		//call archiveDepartingVehicles when single vehicle is over time
 		testCarPark.archiveDepartingVehicles(201, false);	
 		currentTestCondition = !testCar.isParked(); 
@@ -128,7 +130,6 @@ public class CarParkTests {
 				+ " of vehicle when over time",(currentTestCondition));
 	}
 
-	
 	/**
 	 * @author Lucas
 	 * Check that vehicle doesn't change state when less than time, and force is false
@@ -136,7 +137,7 @@ public class CarParkTests {
 	@Test 
 	public void testArchiveVehicleUnderTime() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100); 
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		//call archiveDepartingVehicles when single vehicle is under time
 		testCarPark.archiveDepartingVehicles(199, false);	
 		currentTestCondition = testCar.isParked(); 
@@ -151,7 +152,7 @@ public class CarParkTests {
 	@Test 
 	public void testArchiveVehicleUnderTimeState() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100); 
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		//call archiveDepartingVehicles when single vehicle is under time
 		testCarPark.archiveDepartingVehicles(199, false);	
 		currentTestCondition = (testCarPark.getNumCars() == 1);
@@ -166,7 +167,7 @@ public class CarParkTests {
 	@Test 
 	public void testArchiveVehicleEqualTime() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100); 
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		//call archiveDepartingVehicles when single vehicle is equal to time
 		testCarPark.archiveDepartingVehicles(200, false);	
 		currentTestCondition = testCarPark.carParkEmpty();
@@ -181,7 +182,7 @@ public class CarParkTests {
 	@Test 
 	public void testArchiveVehicleEqualTimeState() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100); 
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		//call archiveDepartingVehicles when single vehicle is equal to time
 		testCarPark.archiveDepartingVehicles(200, false);	
 		currentTestCondition = !testCar.isParked(); 
@@ -196,7 +197,7 @@ public class CarParkTests {
 	@Test 
 	public void testArchiveVehicleForceOnState() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100); 
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		//call archiveDepartingVehicles when single vehicle is less than time, and force true
 		testCarPark.archiveDepartingVehicles(199, true);	
 		currentTestCondition = !testCar.isParked(); 
@@ -211,7 +212,7 @@ public class CarParkTests {
 	@Test 
 	public void testArchiveVehicleForceOn() throws VehicleException, SimulationException {
 		testCar = new Car(testVehicleID, currentTime, false); 
-		testCarPark.parkVehicle(testCar, currentTime, 100); 
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		//call archiveDepartingVehicles when single vehicle is less than time, and force true
 		testCarPark.archiveDepartingVehicles(199, true);	
 		currentTestCondition = testCarPark.carParkEmpty();
@@ -228,7 +229,7 @@ public class CarParkTests {
 		//park 30 cars in the carpark
 		for (int i = 0; i < 30; i++) {
 			testCar = new Car(testVehicleID, currentTime, false); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//call archiveDepartingVehicles when multiple vehicles are less than time
 		testCarPark.archiveDepartingVehicles(199, false);	
@@ -246,7 +247,7 @@ public class CarParkTests {
 		//park 30 cars in the carpark
 		for (int i = 0; i < 30; i++) {
 			testCar = new Car(testVehicleID, currentTime, true); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//call archiveDepartingVehicles when multiple vehicles are over time
 		testCarPark.archiveDepartingVehicles(201, false);	
@@ -264,7 +265,7 @@ public class CarParkTests {
 		//park 30 cars in the carpark
 		for (int i = 0; i < 30; i++) {
 			testCar = new Car(testVehicleID, currentTime, true); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//park 20 cars in the carpark
 				for (int i = 0; i < 20; i++) {
@@ -315,10 +316,21 @@ public class CarParkTests {
 	public void testArchiveNewVehicleSatisfied() throws SimulationException, VehicleException {
 		testCar = new Car(testVehicleID, currentTime, false); 
 		testCarPark.archiveNewVehicle(testCar); 
-		currentTestCondition = ((!testCar.wasQueued()) && (!testCar.wasParked())); 
+		currentTestCondition = (!testCar.isSatisfied()); 
 		assertTrue("archiveNewVehicle fails to set vehicle to unsatisfied",(currentTestCondition));
 	}
 	
+	/**
+	 * @author Lucas
+	 * Check that vehicle is not parked or placed in queue
+	 */
+	@Test 
+	public void testArchiveNewVehicleArchived() throws SimulationException, VehicleException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.archiveNewVehicle(testCar); 
+		currentTestCondition = (testCarPark.carParkEmpty() && testCarPark.queueEmpty()); 
+		assertTrue("archiveNewVehicle incorrectly adds vehicle to queue or carpark",(currentTestCondition));
+	}
 	
 	////////////////////////////////////////////////////
 	//			archiveQueueFailures
@@ -335,6 +347,19 @@ public class CarParkTests {
 		testCarPark.archiveQueueFailures(overTimeValue); 
 		currentTestCondition = (testCarPark.queueEmpty()); 
 		assertTrue("Vehicle is not removed from queue when over time",(currentTestCondition));
+	}
+	
+	/**
+	 * Check that vehicle is set to dissatisfied when removed from queue
+	 */
+	@Test 
+	public void testArchiveQueueFailuresDissatisfied() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, currentTime, false); 
+		testCarPark.enterQueue(testCar);
+		//call archiveDepartingVehicles when single vehicle is over time
+		testCarPark.archiveQueueFailures(overTimeValue); 
+		currentTestCondition = (!testCar.isSatisfied()); 
+		assertTrue("Vehicle is not set to dissatisfied when removed from queue when over time",(currentTestCondition));
 	}
 	
 	/**
@@ -403,25 +428,43 @@ public class CarParkTests {
 	}
 	
 	/**
-	 * Check that no vehicles removed from queue when multiple less than time
+	 * Check that no vehicles removed from queue when multiple cars less than time
 	 */
 	@Test 
-	public void testArchiveQueueFailuresMultipleUnderTime() throws VehicleException, SimulationException {
+	public void testArchiveQueueFailuresMultipleCarsUnderTime() throws VehicleException, SimulationException {
+		//add 5 cars to queue
 		for (int i = 0; i < 5; i++) {
 			testCar = new Car(testVehicleID, currentTime, false); 
 			testCarPark.enterQueue(testCar);
 		}
-		//call archiveDepartingVehicles when multiple vehicles are under time
+		//call archiveDepartingVehicles when multiple cars are under time
 		testCarPark.archiveQueueFailures(currentTime+1); 
 		currentTestCondition = (!testCarPark.queueEmpty()); 
-		assertTrue("Vehicles are incorrectly removed from queue when multiple under time",(currentTestCondition));
+		assertTrue("Vehicles are incorrectly removed from queue when multiple cars under time",(currentTestCondition));
 	}
 	
 	/**
-	 * Check that multiple vehicles removed from queue when multiple greater than time
+	 * Check that no vehicles removed from queue when multiple motorcycles less than time
 	 */
 	@Test 
-	public void testArchiveQueueFailuresMultipleOverTime() throws VehicleException, SimulationException {
+	public void testArchiveQueueFailuresMultipleMotorCyclesUnderTime() throws VehicleException, SimulationException {
+		//add 5 motorcycles to queue
+		for (int i = 0; i < 5; i++) {
+			testMotorCycle = new MotorCycle(testVehicleID, currentTime); 
+			testCarPark.enterQueue(testMotorCycle);
+		}
+		//call archiveDepartingVehicles when multiple motorcycles are under time
+		testCarPark.archiveQueueFailures(currentTime+1); 
+		currentTestCondition = (!testCarPark.queueEmpty()); 
+		assertTrue("Vehicles are incorrectly removed from queue when multiple motorcycles under time",(currentTestCondition));
+	}
+	
+	/**
+	 * Check that multiple vehicles removed from queue when multiple cars greater than time
+	 */
+	@Test 
+	public void testArchiveQueueFailuresMultipleCarsOverTime() throws VehicleException, SimulationException {
+		//add 5 cars to queue
 		for (int i = 0; i < 5; i++) {
 			testCar = new Car(testVehicleID, currentTime, false); 
 			testCarPark.enterQueue(testCar);
@@ -429,9 +472,25 @@ public class CarParkTests {
 		//call archiveDepartingVehicles when multiple vehicles are over time
 		testCarPark.archiveQueueFailures(overTimeValue); 
 		currentTestCondition = (testCarPark.queueEmpty()); 
-		assertTrue("Vehicles aren't removed from queue when multiple over time",(currentTestCondition));
+		assertTrue("Vehicles aren't removed from queue when multiple cars over time",(currentTestCondition));
 	}
 
+	/**
+	 * Check that multiple vehicles removed from queue when multiple motorcycles greater than time
+	 */
+	@Test 
+	public void testArchiveQueueFailuresMultipleMotorCyclesOverTime() throws VehicleException, SimulationException {
+		//add 5 motorcycles to queue
+		for (int i = 0; i < 5; i++) {
+			testMotorCycle = new MotorCycle(testVehicleID, currentTime); 
+			testCarPark.enterQueue(testMotorCycle);
+		}
+		//call archiveDepartingVehicles when multiple motorcycles are over time
+		testCarPark.archiveQueueFailures(overTimeValue); 
+		currentTestCondition = (testCarPark.queueEmpty()); 
+		assertTrue("Vehicles aren't removed from queue when multiple motorcycles over time",(currentTestCondition));
+	}
+	
 	
 	////////////////////////////////////////////////////
 	//			carParkEmpty
@@ -454,8 +513,8 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testCarParkEmptyOneVehicle() throws VehicleException, SimulationException {
-		testCar = new Car("1", 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = !testCarPark.carParkEmpty(); //check if carparkEmpty returns false when one vehicle present
 		assertTrue("carParkEmpty fails to return false when one vehicle present",(currentTestCondition));
 	}
@@ -464,10 +523,10 @@ public class CarParkTests {
 	 * Check that carParkEmpty returns false when multiple cars in carpark
 	 */
 	public void testCarParkEmptyMultipleVehicle() throws VehicleException, SimulationException {
-		testCar = new Car("1", 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
-		testCar = new Car("1", 10, normalCarCondition); //create a second car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a second car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = !testCarPark.carParkEmpty(); //check if carparkEmpty returns false when multiple vehicles present
 		assertTrue("carParkEmpty fails to return false when multiple vehicles present",(currentTestCondition));
 	}
@@ -485,18 +544,18 @@ public class CarParkTests {
 	public void testCarParkFullAtCapacity() throws VehicleException, SimulationException {
 		//park 100 cars in the carpark
 		for (int i = 0; i < 70; i++) {
-			testCar = new Car("1", 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//park 30 small cars in the carpark
 		for (int i = 0; i < 30; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//park 20 motorcycles in the carpark
 		for (int i = 0; i < 20; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		
 		currentTestCondition = testCarPark.carParkFull();
@@ -510,20 +569,20 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testCarParkCarOneBelow() throws VehicleException, SimulationException {
-		//park 99 cars in the carpark
+		//park 69 cars in the carpark
 		for (int i = 0; i < 69; i++) {
-			testCar = new Car("1", 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
-		//park 20 small cars in the carpark
+		//park 30 small cars in the carpark
 		for (int i = 0; i < 30; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//park 20 motorcycles in the carpark
 		for (int i = 0; i < 20; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		
 		currentTestCondition = !testCarPark.carParkFull();
@@ -536,15 +595,15 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testCarParkSmallCarOneBelow() throws VehicleException, SimulationException {
-		//park 19 small cars in the carpark
+		//park 99 small cars in the carpark
 		for (int i = 0; i < 99; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//park 20 motorcycles in the carpark
 		for (int i = 0; i < 20; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		
 		currentTestCondition = !testCarPark.carParkFull();
@@ -557,15 +616,15 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testCarParkMotorcycleOneBelow() throws VehicleException, SimulationException {
-		//park 100 cars in the carpark
+		//park 100 small cars in the carpark
 		for (int i = 0; i < 100; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//park 19 motorcycles in the carpark
 		for (int i = 0; i < 19; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		
 		currentTestCondition = !testCarPark.carParkFull();
@@ -590,28 +649,122 @@ public class CarParkTests {
 	
 	/**
 	 * @author Lucas
-	 * Check that enterQueue throws SimulationException if queue is full when called
+	 * Check that enterQueue throws SimulationException if queue is full of cars when called
 	 */  
 	@Test  (expected = SimulationException.class)
-	public void testEnterQueueFull() throws VehicleException, SimulationException {
-		//try to place 11 vehicles in queue
+	public void testEnterQueueFullCars() throws VehicleException, SimulationException {
+		//try to place 11 cars in queue
 		for (int i = 0; i < 11; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
-		assertTrue("SimulationException not thrown when enterQueue is called, and queue is already full",(true)); 
+		assertTrue("SimulationException not thrown when enterQueue is called, and queue is already full of cars",(true)); 
 	}
 	
 	/**
 	 * @author Lucas
-	 * Check that enterQueue successfully adds one vehicle to the queue
+	 * Check that enterQueue throws SimulationException if queue is full of cars when called
+	 */  
+	@Test  (expected = SimulationException.class)
+	public void testEnterQueueFullSmallCars() throws VehicleException, SimulationException {
+		//try to place 11 small cars in queue
+		for (int i = 0; i < 11; i++) {
+			testCar = new Car(testVehicleID, startTime, smallCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		assertTrue("SimulationException not thrown when enterQueue is called, and queue is already full of small cars",(true)); 
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that enterQueue throws SimulationException if queue is full of motorcycles when called
+	 */  
+	@Test  (expected = SimulationException.class)
+	public void testEnterQueueFullMotorCycles() throws VehicleException, SimulationException {
+		//try to place 11 motorcycles in queue
+		for (int i = 0; i < 11; i++) {
+			testMotorCycle = new MotorCycle(testVehicleID, startTime);
+			testCarPark.enterQueue(testMotorCycle);
+		}
+		assertTrue("SimulationException not thrown when enterQueue is called, and queue is already full of motorcycles",(true)); 
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that enterQueue throws VehicleException if vehicle is in a parked state when called
+	 */  
+	@Test  (expected = VehicleException.class)
+	public void testEnterQueueIncorrectStateParked() throws VehicleException, SimulationException {
+		//park vehicle and then try to enter queue
+		testCar = new Car(testVehicleID, startTime, normalCarCondition);
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration);
+		testCarPark.enterQueue(testCar);
+
+		assertTrue("VehicleException not thrown when enterQueue is called, and vehicle is parked",(true)); 
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that enterQueue throws VehicleException if vehicle is in a queued state when called
+	 */  
+	@Test  (expected = VehicleException.class)
+	public void testEnterQueueIncorrectStateQueued() throws VehicleException, SimulationException {
+		//queue vehicle and then try to enter queue again
+		testCar = new Car(testVehicleID, startTime, normalCarCondition);
+		testCarPark.enterQueue(testCar);
+		testCarPark.enterQueue(testCar);
+
+		assertTrue("VehicleException not thrown when enterQueue is called, and vehicle is already queued",(true)); 
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that enterQueue throws VehicleException if vehicle is in an archived state when called
+	 */  
+	@Test  (expected = VehicleException.class)
+	public void testEnterQueueIncorrectStateArchived() throws VehicleException, SimulationException {
+		//archive vehicle and then try to enter queue
+		testCar = new Car(testVehicleID, startTime, normalCarCondition);
+		testCarPark.archiveNewVehicle(testCar);
+		testCarPark.enterQueue(testCar);
+
+		assertTrue("VehicleException not thrown when enterQueue is called, and vehicle is archived",(true)); 
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that enterQueue successfully adds one car to the queue
 	 */  
 	@Test 
-	public void testEnterQueueOne() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition);
+	public void testEnterQueueOneCar() throws VehicleException, SimulationException {
+		testCar = new Car(testVehicleID, startTime, normalCarCondition);
 		testCarPark.enterQueue(testCar);
 		currentTestCondition = (testCarPark.numVehiclesInQueue() == 1);
-		assertTrue("enterQueue does not successfully add a single vehicle to queue",(currentTestCondition)); 
+		assertTrue("enterQueue does not successfully add a single car to queue",(currentTestCondition)); 
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that enterQueue successfully adds one small car to the queue
+	 */  
+	@Test 
+	public void testEnterQueueOneSmallCar() throws VehicleException, SimulationException {
+		testSmallCar = new Car(testVehicleID, startTime, smallCarCondition);
+		testCarPark.enterQueue(testSmallCar);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 1);
+		assertTrue("enterQueue does not successfully add a single small car to queue",(currentTestCondition)); 
+	}
+	
+	/**
+	 * @author Lucas
+	 * Check that enterQueue successfully adds one motorcycle to the queue
+	 */  
+	@Test 
+	public void testEnterQueueOneMotorCycle() throws VehicleException, SimulationException {
+		testMotorCycle = new MotorCycle(testVehicleID, startTime);
+		testCarPark.enterQueue(testMotorCycle);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 1);
+		assertTrue("enterQueue does not successfully add a single motorcycle to queue",(currentTestCondition)); 
 	}
 	
 	/**
@@ -619,7 +772,7 @@ public class CarParkTests {
 	 */  
 	@Test  
 	public void testEnterQueueOneState() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition);
+		testCar = new Car(testVehicleID, startTime, normalCarCondition);
 		testCarPark.enterQueue(testCar);
 		currentTestCondition = (testCar.isQueued());
 		assertTrue("enterQueue does not successfully change state of vehicle when added to queue",(currentTestCondition)); 
@@ -631,7 +784,7 @@ public class CarParkTests {
 	@Test  
 	public void testEnterQueueMultiple() throws VehicleException, SimulationException {
 		for (int i = 0; i < 3; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
 		currentTestCondition = (testCarPark.numVehiclesInQueue() == 3);
@@ -649,25 +802,57 @@ public class CarParkTests {
 	 */  
 	@Test  (expected = SimulationException.class)
 	public void testExitQueueSimulationexception() throws VehicleException, SimulationException {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.exitQueue(testCar, currentTime);
 		assertTrue("SimulationException not thrown when exitQueue is called, and queue is already empty",(true)); 
 	}
 	
 	/**
-	 * Check that exitQueue successfully removes one vehicle from the queue
+	 * Check that exitQueue successfully removes one car from the queue
 	 */ 
 	@Test  
-	public void testExitQueueOne() throws VehicleException, SimulationException {
-		//place 3 vehicles in queue
+	public void testExitQueueOneCar() throws VehicleException, SimulationException {
+		//place 3 cars in queue
 		for (int i = 0; i < 3; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
-		//remove one vehicle from queue
+		//remove one car from queue
 		testCarPark.exitQueue(testCar, currentTime);
 		currentTestCondition = (testCarPark.numVehiclesInQueue() == 2);
-		assertTrue("exitQueue does not correctly remove a single vehicle from queue",(currentTestCondition)); 
+		assertTrue("exitQueue does not correctly remove a single car from queue",(currentTestCondition)); 
+	}
+	
+	/**
+	 * Check that exitQueue successfully removes one small car from the queue
+	 */ 
+	@Test  
+	public void testExitQueueOneSmallCar() throws VehicleException, SimulationException {
+		//place 3 small cars in queue
+		for (int i = 0; i < 3; i++) {
+			testCar = new Car(testVehicleID, startTime, smallCarCondition);
+			testCarPark.enterQueue(testCar);
+		}
+		//remove one small car from queue
+		testCarPark.exitQueue(testCar, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 2);
+		assertTrue("exitQueue does not correctly remove a single small car from queue",(currentTestCondition)); 
+	}
+	
+	/**
+	 * Check that exitQueue successfully removes one motorcycle from the queue
+	 */ 
+	@Test  
+	public void testExitQueueOneMotorCycle() throws VehicleException, SimulationException {
+		//place 3 motorcycles in queue
+		for (int i = 0; i < 3; i++) {
+			testMotorCycle = new MotorCycle(testVehicleID, startTime);
+			testCarPark.enterQueue(testMotorCycle);
+		}
+		//remove one motorcycle from queue
+		testCarPark.exitQueue(testMotorCycle, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 2);
+		assertTrue("exitQueue does not correctly remove a single motorcycle from queue",(currentTestCondition)); 
 	}
 	
 	/**
@@ -677,7 +862,7 @@ public class CarParkTests {
 	public void testExitQueueOneState() throws VehicleException, SimulationException {
 		//place 3 vehicles in queue
 		for (int i = 0; i < 3; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
 		//remove one vehicle from queue
@@ -689,21 +874,23 @@ public class CarParkTests {
 	/**
 	 * Check that exitQueue successfully removes multiple vehicles from the queue
 	 */  
-	/*
 	@Test  
 	public void testExitQueueMultiple() throws VehicleException, SimulationException {
-		//place 8 vehicles in queue
-		for (int i = 0; i < 8; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
-			testCarPark.enterQueue(testCar);
-		}
-		//remove one vehicle from queue
+		//place 3 vehicles in queue
+		testCar = new Car(testVehicleID, startTime, normalCarCondition);
+		testCarPark.enterQueue(testCar);
+		testSmallCar = new Car(testVehicleID, startTime, smallCarCondition);
+		testCarPark.enterQueue(testSmallCar);
+		testMotorCycle = new MotorCycle(testVehicleID, startTime);
+		testCarPark.enterQueue(testMotorCycle);
 		
+		//remove the 3 vehicles from the queue
 		testCarPark.exitQueue(testCar, currentTime);
-		currentTestCondition = (testCarPark.numVehiclesInQueue() == 2);
-		assertTrue("exitQueue does not correctly remove a single vehicle from queue",(currentTestCondition)); 
+		testCarPark.exitQueue(testSmallCar, currentTime);
+		testCarPark.exitQueue(testMotorCycle, currentTime);
+		currentTestCondition = (testCarPark.numVehiclesInQueue() == 0);
+		assertTrue("exitQueue does not correctly remove multiple vehicles from queue",(currentTestCondition)); 
 	}
-	*/
 
 	/**
 	 * Check that exitQueue successfully removes vehicle from the queue when only one present
@@ -711,14 +898,13 @@ public class CarParkTests {
 	@Test  
 	public void testExitQueueOnePresent() throws VehicleException, SimulationException {
 		//place 1 vehicles in queue
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		//remove one vehicle from queue
 		testCarPark.exitQueue(testCar, currentTime);
 		currentTestCondition = (testCarPark.numVehiclesInQueue() == 0);
 		assertTrue("exitQueue does not correctly remove a single vehicle from queue when one present",(currentTestCondition)); 
 	}
-
 
 	////////////////////////////////////////////////////
 	//			getNumCars
@@ -740,8 +926,8 @@ public class CarParkTests {
 	 */ 
 	@Test
 	public void testGetNumCarsOne() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCarPark.getNumCars() == 1); //check if 1 car in carpark
 		assertTrue("getNumCars returns incorrect value when one car in carpark",(currentTestCondition));
 	}
@@ -752,8 +938,8 @@ public class CarParkTests {
 	 */ 
 	@Test
 	public void testGetNumCarsOneSmall() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, smallCarCondition); //create a small car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, smallCarCondition); //create a small car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCarPark.getNumCars() == 1); //check if 1 car in carpark
 		assertTrue("getNumCars returns incorrect value when one small car in carpark",(currentTestCondition));
 	}
@@ -764,12 +950,12 @@ public class CarParkTests {
 	 */ 
 	@Test
 	public void testGetNumCarsMultiple() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
-		testCar = new Car(testVehicleID, 10, smallCarCondition); //create a small car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, smallCarCondition); //create a small car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCarPark.getNumCars() == 3); //check if 3 cars in carpark
 		assertTrue("getNumCars returns incorrect value when one small car in carpark",(currentTestCondition));
 	}
@@ -780,15 +966,15 @@ public class CarParkTests {
 	 */ 
 	@Test
 	public void testGetNumCarsFull() throws VehicleException, SimulationException {
-		//park 100 cars in the carpark
+		//park 70 cars in the carpark
 		for (int i = 0; i < 70; i++) {
-			testCar = new Car("1", 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//park 20 small cars in the carpark
 		for (int i = 0; i < 30; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		currentTestCondition = (testCarPark.getNumCars() == 100); //check if 120 cars in carpark
 		assertTrue("getNumCars returns incorrect value when carpark full",(currentTestCondition));
@@ -814,8 +1000,8 @@ public class CarParkTests {
 	 */ 
 	@Test
 	public void testGetNumMotorCyclesOne() throws VehicleException, SimulationException {
-		testMotorCycle = new MotorCycle(testVehicleID, 10); //create a motorcycle
-		testCarPark.parkVehicle(testMotorCycle, currentTime, 100); //call park vehicle
+		testMotorCycle = new MotorCycle(testVehicleID, startTime); //create a motorcycle
+		testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCarPark.getNumMotorCycles() == 1); //check if 1 motorcycle in carpark
 		assertTrue("getNumMotorCycles returns incorrect value when one motorcycle in carpark",(currentTestCondition));
 	}
@@ -828,8 +1014,8 @@ public class CarParkTests {
 	public void testGetNumMotorCyclesOneExtra() throws VehicleException, SimulationException {
 		//park 21 motorcycles in the carpark
 		for (int i = 0; i < 21; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		currentTestCondition = (testCarPark.getNumMotorCycles() == 21); //check if 21 motorCycles in carpark
 		assertTrue("getNumMotorCycles returns incorrect value when more motorCycles "
@@ -844,13 +1030,13 @@ public class CarParkTests {
 	public void testGetNumMotorCyclesMultipleTypes() throws VehicleException, SimulationException {
 		//park 10 small cars in the carpark
 				for (int i = 0; i < 10; i++) {
-					testCar = new Car("1", 10, smallCarCondition); 
-					testCarPark.parkVehicle(testCar, currentTime, 100); 
+					testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+					testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 				}
 		//park 25 motorcycles in the carpark
 		for (int i = 0; i < 25; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		currentTestCondition = (testCarPark.getNumMotorCycles() == 25); //check if 25 motorCycles in carpark
 		assertTrue("getNumMotorCycles returns incorrect value when more motorCycles "
@@ -864,8 +1050,8 @@ public class CarParkTests {
 	public void testGetNumMotorCyclesFull() throws VehicleException, SimulationException {
 		//park 20 motorcycles in the carpark
 		for (int i = 0; i < 20; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		currentTestCondition = (testCarPark.getNumMotorCycles() == 20); //check if 21 motorCycles in carpark
 		assertTrue("getNumMotorCycles returns incorrect value when motorcycle "
@@ -880,8 +1066,8 @@ public class CarParkTests {
 	public void testGetNumMotorCyclesBothFull() throws VehicleException, SimulationException {
 		//park 40 motorcycles in the carpark
 		for (int i = 0; i < 40; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		currentTestCondition = (testCarPark.getNumMotorCycles() == 40); //check if 40 motorCycles in carpark
 		assertTrue("getNumMotorCycles returns incorrect value when both motorcycle "
@@ -909,8 +1095,8 @@ public class CarParkTests {
 	 */ 
 	@Test
 	public void testGetNumSmallCarsOne() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, smallCarCondition); //create a small car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, smallCarCondition); //create a small car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCarPark.getNumSmallCars() == 1); //check if 1 car in carpark
 		assertTrue("getNumSmallCars returns incorrect value when one small car in carpark",(currentTestCondition));
 	}
@@ -923,8 +1109,8 @@ public class CarParkTests {
 	public void testGetNumSmallCarsOneExtra() throws VehicleException, SimulationException {
 		//park 21 small cars in the carpark
 		for (int i = 0; i < 21; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		currentTestCondition = (testCarPark.getNumSmallCars() == 21); //check if 21 small cars in carpark
 		assertTrue("getNumSmallCars returns incorrect value when more small cars than small spaces",(currentTestCondition));
@@ -938,8 +1124,8 @@ public class CarParkTests {
 	public void testGetNumSmallCarsMultiple() throws VehicleException, SimulationException {
 		//park 21 small cars in the carpark
 		for (int i = 0; i < 5; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		currentTestCondition = (testCarPark.getNumSmallCars() == 5); //check if 5 small cars in carpark
 		assertTrue("getNumSmallCars returns incorrect value when multiple small cars in carpark",(currentTestCondition));
@@ -952,8 +1138,8 @@ public class CarParkTests {
 	public void testGetNumSmallCarsFull() throws VehicleException, SimulationException {
 		//park 100 small cars in the carpark
 		for (int i = 0; i < 100; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		currentTestCondition = (testCarPark.getNumSmallCars() == 100); //check if 100 small cars in carpark
 		assertTrue("getNumSmallCars returns incorrect value when carpark full of small cars",(currentTestCondition));
@@ -980,7 +1166,7 @@ public class CarParkTests {
 	 */ 
 	@Test  
 	public void testNumVehiclesInQueueOne() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition);
+		testCar = new Car(testVehicleID, startTime, normalCarCondition);
 		testCarPark.enterQueue(testCar);
 		currentTestCondition = (testCarPark.numVehiclesInQueue() == 1);
 		assertTrue("numVehiclesInQueue does not return currect value when one vehicle present",(currentTestCondition)); 
@@ -992,7 +1178,7 @@ public class CarParkTests {
 	@Test  
 	public void testNumVehiclesInQueueMultiple() throws VehicleException, SimulationException {
 		for (int i = 0; i < 3; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
 		currentTestCondition = (testCarPark.numVehiclesInQueue() == 3);
@@ -1005,7 +1191,7 @@ public class CarParkTests {
 	@Test  
 	public void testNumVehiclesInQueueFull() throws VehicleException, SimulationException {
 		for (int i = 0; i < 10; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
 		currentTestCondition = (testCarPark.numVehiclesInQueue() == 10);
@@ -1023,8 +1209,8 @@ public class CarParkTests {
 	@Test (expected = SimulationException.class)
 	public void testParkVehicleNoSpaces() throws VehicleException, SimulationException {
 		for (int i = 0; i < 101; i++) {
-			testCar = new Car("1", 10, normalCarCondition); //create a car
-			testCarPark.parkVehicle(testCar, currentTime, 100); //try to add 101 cars to carpark of max capacity 100
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //try to add 101 cars to carpark of max capacity 100
 		}
 		assertTrue("parkVehicle fails to throw simulation exception when carpark is full,"
 				+ "and an attempt is made to add another vehicle",true);
@@ -1035,8 +1221,8 @@ public class CarParkTests {
 	 */  
 	@Test 
 	public void testParkVehicleSuccessfully() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCarPark.getNumCars() == 1); //check if 1 vehicle in carpark
 		assertTrue("parkVehicle fails to park type Car",(currentTestCondition));
 	}
@@ -1046,8 +1232,8 @@ public class CarParkTests {
 	 */ 
 	@Test 
 	public void testParkVehicleChangeState() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCar.isParked()); //check if vehicle has changed state
 		assertTrue("parkVehicle fails change state of vehicle to parked",(currentTestCondition));
 	}
@@ -1057,8 +1243,8 @@ public class CarParkTests {
 	 */  
 	@Test
 	public void testParkSmallCarSuccessfully() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, smallCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, smallCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCarPark.getNumSmallCars() == 1); //check if 1 vehicle in carpark
 		assertTrue("parkVehicle fails to park small car",(currentTestCondition));
 	}
@@ -1068,8 +1254,8 @@ public class CarParkTests {
 	 */ 
 	@Test 
 	public void testParkSmallCarChangeState() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, smallCarCondition); //create a small car
-		testCarPark.parkVehicle(testCar, currentTime, 100); //call park vehicle
+		testCar = new Car(testVehicleID, startTime, smallCarCondition); //create a small car
+		testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCar.isParked()); //check if small car has changed state
 		assertTrue("parkVehicle fails change state of vehicle to parked",(currentTestCondition));
 	}
@@ -1079,8 +1265,8 @@ public class CarParkTests {
 	 */  
 	@Test
 	public void testParkMotorcycleSuccessfully() throws VehicleException, SimulationException {
-		testMotorCycle = new MotorCycle(testVehicleID, 10); //create a MotorCycle
-		testCarPark.parkVehicle(testMotorCycle, currentTime, 100); //call park vehicle
+		testMotorCycle = new MotorCycle(testVehicleID, startTime); //create a MotorCycle
+		testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testCarPark.getNumMotorCycles() == 1); //check if 1 MotorCycle in carpark
 		assertTrue("parkVehicle fails to park MotorCycle",(currentTestCondition));
 	}
@@ -1090,8 +1276,8 @@ public class CarParkTests {
 	 */ 
 	//@Test 
 	public void testParkMotorCyceChangeState() throws VehicleException, SimulationException {
-		testMotorCycle = new MotorCycle(testVehicleID, 10); //create a small car
-		testCarPark.parkVehicle(testMotorCycle, currentTime, 100); //call park vehicle
+		testMotorCycle = new MotorCycle(testVehicleID, startTime); //create a small car
+		testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); //call park vehicle
 		currentTestCondition = (testMotorCycle.isParked()); //check if MotorCycle has changed state
 		assertTrue("parkVehicle fails change state of MotorCycle to parked",(currentTestCondition));
 	}
@@ -1109,8 +1295,8 @@ public class CarParkTests {
 		testSimulator = new Simulator();
 		//add 20 cars to carpark
 		for (int i = 0; i < 20; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		testCarPark.processQueue(currentTime, testSimulator);
 		currentTestCondition = ((testCarPark.getNumCars() == 20) && (testCarPark.queueEmpty()));
@@ -1125,7 +1311,7 @@ public class CarParkTests {
 	@Test 
 	public void testProcessQueueOne() throws VehicleException, SimulationException {
 		testSimulator = new Simulator();
-		testCar = new Car(testVehicleID, 10, normalCarCondition); 
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); 
 		testCarPark.enterQueue(testCar);
 		testCarPark.processQueue(currentTime, testSimulator);
 		currentTestCondition = ((testCarPark.getNumCars() == 1) && (testCarPark.queueEmpty()));
@@ -1142,17 +1328,17 @@ public class CarParkTests {
 		testSimulator = new Simulator();
 		//add 3 cars to queue
 		for (int i = 0; i < 3; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition); 
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); 
 			testCarPark.enterQueue(testCar);
 		}
 		//add 3 small cars to queue
 		for (int i = 0; i < 3; i++) {
-			testCar = new Car(testVehicleID, 10, smallCarCondition); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
 			testCarPark.enterQueue(testCar);
 		}
 		//add 3 motorCycles to queue
 		for (int i = 0; i < 3; i++) {
-			testMotorCycle = new MotorCycle(testVehicleID, 10); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
 			testCarPark.enterQueue(testMotorCycle);
 		}
 		testCarPark.processQueue(currentTime, testSimulator);
@@ -1172,20 +1358,20 @@ public class CarParkTests {
 		testSimulator = new Simulator();
 		//add 70 cars to carpark
 		for (int i = 0; i < 70; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime,100);;
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime,standardParkingDuration);;
 		}
 		//add car to queue
-		testCar = new Car(testVehicleID, 10, normalCarCondition); 
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); 
 		testCarPark.enterQueue(testCar);
 		//add 3 small cars to queue
 		for (int i = 0; i < 3; i++) {
-			testCar = new Car(testVehicleID, 10, smallCarCondition); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
 			testCarPark.enterQueue(testCar);
 		}
 		//add 3 motorCycles to queue
 		for (int i = 0; i < 3; i++) {
-			testMotorCycle = new MotorCycle(testVehicleID, 10); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
 			testCarPark.enterQueue(testMotorCycle);
 		}
 		testCarPark.processQueue(currentTime, testSimulator);
@@ -1216,7 +1402,7 @@ public class CarParkTests {
 	 */
 	@Test  
 	public void testQueueEmptyOne() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition);
+		testCar = new Car(testVehicleID, startTime, normalCarCondition);
 		testCarPark.enterQueue(testCar);
 		currentTestCondition = !testCarPark.queueEmpty();
 		assertTrue("queueEmpty does not return false when one vehicle in queue",(currentTestCondition)); 
@@ -1229,7 +1415,7 @@ public class CarParkTests {
 	@Test  
 	public void testQueueEmptyCapacity() throws VehicleException, SimulationException {
 		for (int i = 0; i < 10; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
 		currentTestCondition = !testCarPark.queueEmpty();
@@ -1247,7 +1433,7 @@ public class CarParkTests {
 	@Test  
 	public void testQueueFullCapacity() throws VehicleException, SimulationException {
 		for (int i = 0; i < 10; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
 		currentTestCondition = testCarPark.queueFull();
@@ -1261,7 +1447,7 @@ public class CarParkTests {
 	@Test  
 	public void testQueueFullOneBelow() throws VehicleException, SimulationException {
 		for (int i = 0; i < 9; i++) {
-			testCar = new Car(testVehicleID, 10, normalCarCondition);
+			testCar = new Car(testVehicleID, startTime, normalCarCondition);
 			testCarPark.enterQueue(testCar);
 		}
 		currentTestCondition = !testCarPark.queueFull();
@@ -1289,7 +1475,7 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testSpacesAvailableCarEmpty() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
 		currentTestCondition = testCarPark.spacesAvailable(testCar); //check if spaces available
 		assertTrue("spacesAvailable fails to return true when vehicle is car"
 				+ "and all relevant spaces available",(currentTestCondition));
@@ -1303,8 +1489,8 @@ public class CarParkTests {
 	public void testSpacesAvailableCarOneBelow() throws VehicleException, SimulationException {
 		//park 69 cars
 		for (int i = 0; i < 69; i++) {
-			testCar = new Car("1", 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//check if spaces available
 		currentTestCondition = testCarPark.spacesAvailable(testCar); 
@@ -1319,8 +1505,8 @@ public class CarParkTests {
 	public void testSpacesAvailableCarFull() throws VehicleException, SimulationException {
 		//park 70 cars
 		for (int i = 0; i < 70; i++) {
-			testCar = new Car("1", 10, normalCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, normalCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//check if spaces available
 		currentTestCondition = !testCarPark.spacesAvailable(testCar); 
@@ -1334,7 +1520,7 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testSpacesAvailableSmallCarEmpty() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, smallCarCondition); //create a small car
+		testCar = new Car(testVehicleID, startTime, smallCarCondition); //create a small car
 		currentTestCondition = testCarPark.spacesAvailable(testCar); //check if spaces available
 		assertTrue("spacesAvailable fails to return true when vehicle is small car"
 				+ "and all relevant spaces available",(currentTestCondition));
@@ -1348,8 +1534,8 @@ public class CarParkTests {
 	public void testSpacesAvailableSmallCarOneBelow() throws VehicleException, SimulationException {
 		//park 119 small cars
 		for (int i = 0; i < 99; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//check if spaces available
 		currentTestCondition = testCarPark.spacesAvailable(testCar); 
@@ -1365,8 +1551,8 @@ public class CarParkTests {
 	public void testSpacesAvailableSmallCarFull() throws VehicleException, SimulationException {
 		//park 100 small cars
 		for (int i = 0; i < 100; i++) {
-			testCar = new Car("1", 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		//check if spaces available
 		currentTestCondition = !testCarPark.spacesAvailable(testCar); 
@@ -1380,7 +1566,7 @@ public class CarParkTests {
 	 */
 	@Test 
 	public void testSpacesAvailableMotorCycleEmpty() throws VehicleException, SimulationException {
-		testMotorCycle = new MotorCycle(testVehicleID, 10); //create a motorCycle
+		testMotorCycle = new MotorCycle(testVehicleID, startTime); //create a motorCycle
 		currentTestCondition = testCarPark.spacesAvailable(testMotorCycle); //check if spaces available
 		assertTrue("spacesAvailable fails to return true when vehicle is motorCycle"
 				+ "and all relevant spaces available",(currentTestCondition));
@@ -1394,8 +1580,8 @@ public class CarParkTests {
 	public void testSpacesAvailableMotorCycleOneBelow() throws VehicleException, SimulationException {
 		//park 39 motorCycles
 		for (int i = 0; i < 39; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		//check if spaces available
 		currentTestCondition = testCarPark.spacesAvailable(testMotorCycle); 
@@ -1411,8 +1597,8 @@ public class CarParkTests {
 	public void testSpacesAvailableMotorCycleFull() throws VehicleException, SimulationException {
 		//park 50 motorCycles
 		for (int i = 0; i < 50; i++) {
-			testMotorCycle = new MotorCycle("1", 10); 
-			testCarPark.parkVehicle(testMotorCycle, currentTime, 100); 
+			testMotorCycle = new MotorCycle(testVehicleID, startTime); 
+			testCarPark.parkVehicle(testMotorCycle, currentTime, standardParkingDuration); 
 		}
 		//check if spaces available
 		currentTestCondition = !testCarPark.spacesAvailable(testMotorCycle); 
@@ -1433,8 +1619,8 @@ public class CarParkTests {
 	public void testTryProcessNewVehicleCarFull() throws VehicleException, SimulationException {
 		//park 100 small cars
 		for (int i = 0; i < 100; i++) {
-			testCar = new Car(testVehicleID, 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		
 		testCarPark.tryProcessNewVehicles(currentTime, testSimulator);
@@ -1443,8 +1629,6 @@ public class CarParkTests {
 		assertTrue("tryProcessNewVehicle fails to add car to queue when car spaces are full"
 				+ ", vehicles in queue =" + testValue,(currentTestCondition));
 	}
-	
-	
 	
 	
 	////////////////////////////////////////////////////
@@ -1457,7 +1641,7 @@ public class CarParkTests {
 	 */ 
 	@Test (expected = SimulationException.class)
 	public void testUnparkVehicleNotInCarpark() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
 		testCarPark.unparkVehicle(testCar, currentTime);
 		assertTrue("unparkVehicle fails to throw SimulationException when carpark does"
 				+ "not contain vehicle to be removed",(currentTestCondition));
@@ -1469,8 +1653,8 @@ public class CarParkTests {
 	 */ 
 	@Test 
 	public void testUnparkVehicleOneCar() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime,100);
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime,standardParkingDuration);
 		testCarPark.unparkVehicle(testCar, 300);
 		currentTestCondition = testCarPark.carParkEmpty();
 		assertTrue("unparkVehicle fails to remove single car from carpark",(currentTestCondition));
@@ -1482,8 +1666,8 @@ public class CarParkTests {
 	 */ 
 	@Test 
 	public void testUnparkVehicleChangesState() throws VehicleException, SimulationException {
-		testCar = new Car(testVehicleID, 10, normalCarCondition); //create a car
-		testCarPark.parkVehicle(testCar, currentTime,100);
+		testCar = new Car(testVehicleID, startTime, normalCarCondition); //create a car
+		testCarPark.parkVehicle(testCar, currentTime,standardParkingDuration);
 		testCarPark.unparkVehicle(testCar, 300);
 		currentTestCondition = !testCar.isParked();
 		assertTrue("unparkVehicle fails to change state of vehicle to unparked",(currentTestCondition));
@@ -1503,8 +1687,8 @@ public class CarParkTests {
 	public void testMovedToParkAfterQueue() throws VehicleException, SimulationException {
 		//park 100 small cars
 		for (int i = 0; i < 100; i++) {
-			testCar = new Car(testVehicleID, 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		
 		testCarPark.tryProcessNewVehicles(currentTime, testSimulator);
@@ -1525,8 +1709,8 @@ public class CarParkTests {
 	public void testMovedToArchiveAfterPark() throws VehicleException, SimulationException {
 		//park 100 small cars
 		for (int i = 0; i < 100; i++) {
-			testCar = new Car(testVehicleID, 10, smallCarCondition); 
-			testCarPark.parkVehicle(testCar, currentTime, 100); 
+			testCar = new Car(testVehicleID, startTime, smallCarCondition); 
+			testCarPark.parkVehicle(testCar, currentTime, standardParkingDuration); 
 		}
 		
 		testCarPark.tryProcessNewVehicles(currentTime, testSimulator);
@@ -1537,32 +1721,6 @@ public class CarParkTests {
 		currentTestCondition = (testValue == 0);
 		assertTrue("after added to carpark vehicle is not correctly added to archive when spaces are available"
 				+ ", vehicles in carpark =" + testValue,(currentTestCondition));
-	}
-	
-	
-	//just a test method i have created to see where it is throwing the exception
-	@Test 
-	public void testRunCode() throws VehicleException, SimulationException {
-		for (int i = 0; i < 135; i++) {
-			time++;
-			//queue elements exceed max waiting time
-			if (!testCarPark.queueEmpty()) {
-				testCarPark.archiveQueueFailures(time);
-			}
-			//vehicles whose time has expired
-			if (!testCarPark.carParkEmpty()) {
-				//force exit at closing time, otherwise normal
-				boolean force = (time == Constants.CLOSING_TIME);
-				testCarPark.archiveDepartingVehicles(time, force);
-			}
-			//attempt to clear the queue 
-			if (!testCarPark.carParkFull()) {
-				testCarPark.processQueue(time, testSimulator);
-			}
-
-			testCarPark.tryProcessNewVehicles(time, testSimulator);
-		}
-
 	}
 
 }
